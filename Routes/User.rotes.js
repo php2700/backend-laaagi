@@ -1,0 +1,72 @@
+import express from "express";
+import { addContactDetails, AddGuest, deleteGuest, guestList } from "../Controllers/UserController.js";
+import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { Authentication } from "../Middlewares/Authentication.middleware.js";
+import { Authorization } from "../Middlewares/Authorization.middleware.js";
+
+const UserRouter = express.Router();
+
+UserRouter.post("/add_contact", addContactDetails)
+
+/*-------------------- banner --------------*/
+UserRouter.get("/banner_list", bannerList);
+
+/*------------------- wedding special -----------*/
+UserRouter.get("/wedding_list", userWeddingList)
+
+/*---------------- dry fruit -----------------*/
+UserRouter.get("/dry_fruit_list", userDryFruits)
+
+/*------------------ best seller----------------*/
+UserRouter.get("/best_seller_list", userBestSellerList)
+
+/*------------------discover sweets ----------------*/
+UserRouter.get("/discover_sweets_list", userDiscoverSweetsList)
+
+/*-------------------------invitation boxes -------------*/
+UserRouter.get("/invitation_box_list", userInvitationBoxList)
+
+/*------------------------ads------------------*/
+UserRouter.get("/ads_list", userAdsList)
+
+/*----------------------about ----------------*/
+UserRouter.get("/about_list", userAboutList)
+
+/*--------------------revie -----------------*/
+UserRouter.get("/review_list", userReviewList)
+
+/*---------------------sweets ------*/
+UserRouter.get("/sweets_list", userSweetsList)
+
+/*---------------decorations -----------*/
+UserRouter.get("/decoration_list", userDecorationList)
+
+/*---------------designer ----------*/
+UserRouter.get('/designers_list', userDesigner);
+
+/*---------------invitations ----------*/
+UserRouter.get("/invitation_list", userInvitationList)
+
+/*---------------contact-us---------------*/
+UserRouter.post("/contact-us-detail", addContactUsDetail)
+
+/*----------------quote ----------------*/
+UserRouter.post('/quote', AddQuote)
+
+/*--------------user----------*/
+UserRouter.post('/register', createUser)
+UserRouter.post('/google-login', loginByGoogle)
+UserRouter.post("/verify-otp", verifyOtp)
+
+
+/*----------------planning ------------*/
+UserRouter.get("/planning_list/:userId", Authentication, Authorization(['user']), userplanningList)
+UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory)
+
+/*------------------- guest -----------------*/
+UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
+UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
+UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
+
+
+export default UserRouter;
