@@ -1,5 +1,5 @@
 import express from "express";
-import { addContactDetails, AddGuest, deleteGuest, guestList } from "../Controllers/UserController.js";
+import { addContactDetails, AddGuest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -67,6 +67,7 @@ UserRouter.post("/add-planning-history", Authentication, Authorization(['user'])
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
+UserRouter.patch('/edit-guest',Authentication,Authorization(['user']),editGuest)
 
 
 export default UserRouter;
