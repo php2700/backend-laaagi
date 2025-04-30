@@ -24,10 +24,13 @@ import { discover_sweets_Model } from "../Models/Discover_sweet.model.js";
 import { user_Model } from "../Models/User.model.js";
 import Customization_model from "../Models/Customization.model.js";
 import Quote_model from "../Models/Quote.model.js";
-dotenv.config();
 import { OAuth2Client } from 'google-auth-library';
 import { Planning_History_Model } from "../Models/planning_history.model.js";
 import mongoose from "mongoose";
+
+
+
+dotenv.config();
 const client = new OAuth2Client();
 const baseURL = process.env.BASE_URL;
 

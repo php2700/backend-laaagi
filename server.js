@@ -24,6 +24,7 @@ app.use("/uploads", express.static("uploads/invitation"))
 app.use("/uploads", express.static("uploads/bestSeller"))
 app.use("/uploads", express.static("uploads/discoverSweets"))
 app.use("/uploads", express.static("uploads/invitationBox"))
+// const customizationRoutes = require('../routes/customizationRoutes.js'); 
 
 // const razorpayInstance = new Razorpay({
 //     // Replace with your key_id
@@ -78,6 +79,8 @@ app.post('/verifyOrder',  (req, res)=>{
 
 app.use('/api/admin', AdminRouter)
 app.use('/api/user', UserRouter)
+// app.use("/api/user", routes);
+
 
 const PORT = process.env.PORT;
 const BASE_URL = process.env.BASE_URL
@@ -85,3 +88,9 @@ app.listen(PORT, () => {
     console.log(`server is running ${PORT}`)
     console.log(`Base Url ${BASE_URL}`)
 });
+app.get('/', (req, res) => {
+    res.send('Profile API is running...');
+});
+
+// Mount Routers
+// app.use('/api/user', userRoutes);
