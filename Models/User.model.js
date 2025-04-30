@@ -21,17 +21,21 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    address: {
+        type: String,
+        required: false
+    },
     registerBy: {
         type: String,
         required: true
     },
     role: {
         type: String,
-        default:'user'
+        default: 'user'
     },
-    otp:{
-        type:String,
-        required:false
+    otp: {
+        type: String,
+        required: false
     }
 });
 

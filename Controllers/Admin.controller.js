@@ -2570,6 +2570,22 @@ export const verifyOtp = async (req, res) => {
     }
 }
 
+
+export const updateAddress = async (req, res) => {
+    try {
+        const { _id, address, googleAddress } = req?.body;
+        const isExistUser = await user_Model.findOne({ _id: _id });
+        if (isExistUser) {
+            isExistUser.address = address ?? isExistUser?.address;
+            await isExistUser.save();
+            return res.status(200).json({ message: 'user_update_successfully' })
+        }
+        return res.status(400).json({ message: 'user_not_found' })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
+
 export const userplanningList = async (req, res) => {
     try {
         const { userId } = req?.params;

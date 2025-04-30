@@ -1,6 +1,6 @@
 import express from "express";
 import { addContactDetails, AddGuest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 
@@ -57,6 +57,7 @@ UserRouter.post('/quote', AddQuote)
 UserRouter.post('/register', createUser)
 UserRouter.post('/google-login', loginByGoogle)
 UserRouter.post("/verify-otp", verifyOtp)
+UserRouter.patch("/update-address",Authentication,Authorization(['user']),updateAddress)
 
 
 /*----------------planning ------------*/
