@@ -1,5 +1,9 @@
 import Contact_model from "../Models/Contact_us.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
+import  User from '../Models/User.js';
+
+import asyncHandler from 'express-async-handler';
+
 
 export const addContactDetails = async (req, res) => {
     try {
@@ -71,3 +75,62 @@ export const deleteGuest = async (req, res) => {
         return res.status(400).json({ message: error?.message })
     }
 }
+ export const getUserProfile = asyncHandler(async (req, res) => {
+    // authMiddleware ne user ko req.user mein attach kar diya hai
+    const user = req.user;
+
+    if (user) {
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            mobile: user.mobile,
+            location: user.location,
+            bio: user.bio,
+            avatarUrl: user.avatarUrl,
+            memberSince: user.memberSince, // Agar schema mein hai
+            createdAt: user.createdAt, // Mongoose timestamp
+            updatedAt: user.updatedAt  // Mongoose timestamp
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found'); // asyncHandler yeh error handle karega
+    }
+});
+
+// @desc    Update user profile
+// @route   PUT /api/user/profile
+// @access  Private
+ export const updateUserProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id); // User ID authMiddleware se mila
+
+    if (user) {
+        // Sirf woh fields update karein jo request body mein provide ki gayi hain
+        user.name = req.body.name || user.name;
+        user.mobile = req.body.mobile || user.mobile;
+        user.location = req.body.location || user.location;
+        user.bio = req.body.bio || user.bio;
+        user.avatarUrl = req.body.avatarUrl || user.avatarUrl;
+        // Email ko yahaan update karne se bachna chahiye jab tak verification na ho
+        // Password update ke liye alag endpoint/logic hona chahiye
+
+        const updatedUser = await user.save(); // Save changes
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email, // Email wahi rahega
+            mobile: updatedUser.mobile,
+            location: updatedUser.location,
+            bio: updatedUser.bio,
+            avatarUrl: updatedUser.avatarUrl,
+            memberSince: updatedUser.memberSince,
+            createdAt: updatedUser.createdAt,
+            updatedAt: updatedUser.updatedAt
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+

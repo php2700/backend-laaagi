@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const connectDb = async () => {
-    try {
+    try
+    {
         const databaseName = "Laaagi";
         // await mongoose.connect("mongodb://localhost:27017/Laagi" ,
         await mongoose.connect(`mongodb+srv://php2dbvertex:wFis3rlkFHnJiC6E@laaagi.7ci9ixg.mongodb.net/${databaseName}?retryWrites=true&w=majority&appName=Laaagi`,

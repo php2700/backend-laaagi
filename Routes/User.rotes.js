@@ -1,72 +1,77 @@
+// 
 import express from "express";
 import { addContactDetails, AddGuest, deleteGuest, guestList } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
-
+import { Protect } from "../Middlewares/authMiddleware.js"; // ✅ Fixed path
+import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
+// import { Protect } from "../Middlewares/authMiddleware.js";
 const UserRouter = express.Router();
 
-UserRouter.post("/add_contact", addContactDetails)
+UserRouter.get("/profile", Protect, getUserProfile);
+UserRouter.put("/profile", Protect, updateUserProfile);
+
+
+UserRouter.post("/add_contact", addContactDetails);
 
 /*-------------------- banner --------------*/
 UserRouter.get("/banner_list", bannerList);
 
 /*------------------- wedding special -----------*/
-UserRouter.get("/wedding_list", userWeddingList)
+UserRouter.get("/wedding_list", userWeddingList);
 
 /*---------------- dry fruit -----------------*/
-UserRouter.get("/dry_fruit_list", userDryFruits)
+UserRouter.get("/dry_fruit_list", userDryFruits);
 
 /*------------------ best seller----------------*/
-UserRouter.get("/best_seller_list", userBestSellerList)
+UserRouter.get("/best_seller_list", userBestSellerList);
 
 /*------------------discover sweets ----------------*/
-UserRouter.get("/discover_sweets_list", userDiscoverSweetsList)
+UserRouter.get("/discover_sweets_list", userDiscoverSweetsList);
 
 /*-------------------------invitation boxes -------------*/
-UserRouter.get("/invitation_box_list", userInvitationBoxList)
+UserRouter.get("/invitation_box_list", userInvitationBoxList);
 
 /*------------------------ads------------------*/
-UserRouter.get("/ads_list", userAdsList)
+UserRouter.get("/ads_list", userAdsList);
 
 /*----------------------about ----------------*/
-UserRouter.get("/about_list", userAboutList)
+UserRouter.get("/about_list", userAboutList);
 
 /*--------------------revie -----------------*/
-UserRouter.get("/review_list", userReviewList)
+UserRouter.get("/review_list", userReviewList);
 
 /*---------------------sweets ------*/
-UserRouter.get("/sweets_list", userSweetsList)
+UserRouter.get("/sweets_list", userSweetsList);
 
 /*---------------decorations -----------*/
-UserRouter.get("/decoration_list", userDecorationList)
+UserRouter.get("/decoration_list", userDecorationList);
 
 /*---------------designer ----------*/
 UserRouter.get('/designers_list', userDesigner);
 
 /*---------------invitations ----------*/
-UserRouter.get("/invitation_list", userInvitationList)
+UserRouter.get("/invitation_list", userInvitationList);
 
 /*---------------contact-us---------------*/
-UserRouter.post("/contact-us-detail", addContactUsDetail)
+UserRouter.post("/contact-us-detail", addContactUsDetail);
 
 /*----------------quote ----------------*/
-UserRouter.post('/quote', AddQuote)
+UserRouter.post('/quote', AddQuote);
 
 /*--------------user----------*/
-UserRouter.post('/register', createUser)
-UserRouter.post('/google-login', loginByGoogle)
-UserRouter.post("/verify-otp", verifyOtp)
-
+UserRouter.post('/register', createUser);
+UserRouter.post('/google-login', loginByGoogle);
+UserRouter.post("/verify-otp", verifyOtp);
 
 /*----------------planning ------------*/
-UserRouter.get("/planning_list/:userId", Authentication, Authorization(['user']), userplanningList)
-UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory)
+UserRouter.get("/planning_list/:userId", Authentication, Authorization(['user']), userplanningList);
+UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory);
 
 /*------------------- guest -----------------*/
-UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
-UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
-UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
-
+UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
+UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
+UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
 
 export default UserRouter;
