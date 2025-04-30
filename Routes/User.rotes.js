@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, deleteGuest, guestList } from "../Controllers/UserController.js";
+import { addContactDetails, AddGuest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -70,8 +70,15 @@ UserRouter.get("/planning_list/:userId", Authentication, Authorization(['user'])
 UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory);
 
 /*------------------- guest -----------------*/
+<<<<<<< HEAD
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
+=======
+UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
+UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
+UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
+UserRouter.patch('/edit-guest',Authentication,Authorization(['user']),editGuest)
+>>>>>>> ee5d8561f06409503110a6a48f4f75f9b0d15010
 
 export default UserRouter;
