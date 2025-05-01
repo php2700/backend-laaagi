@@ -217,6 +217,24 @@ const uploadDiscoverSweets = multer.diskStorage({
   },
 });
 
+const uploadProfile = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/profile/");
+  },
+  filename: async (req, file, cb) => {
+    try {
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime().toString();
+      const uniqueSuffix = timestamp;
+      const ext = path.extname(file.originalname);
+      cb(null, uniqueSuffix + ext);
+    } catch (err) {
+      console.error("Error generating filename:", err);
+      cb(err);
+    }
+  },
+});
+
 const banner = multer({ storage: uploadBanner });
 const sweets = multer({ storage: uploadSweets });
 const decoration = multer({ storage: uploadDecoration })
@@ -229,5 +247,6 @@ const dryFruit = multer({ storage: uploadDryFruit })
 const bestSeller = multer({ storage: uploadBestSeller })
 const invitationBox = multer({ storage: uploadInvitationBox })
 const discoverSweets = multer({ storage: uploadDiscoverSweets })
+const profile=multer({storage:uploadProfile})
 
-export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets };
+export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets,profile };

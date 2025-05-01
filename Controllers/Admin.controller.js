@@ -1,6 +1,6 @@
 import { Admin_Model } from "../Models/Admin.model.js";
 import jwt from 'jsonwebtoken'
-import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, review, sweets, wedding } from "../Config/imageupload.js";
+import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, profile, review, sweets, wedding } from "../Config/imageupload.js";
 import { Video } from "../Config/videoupload.js"
 import { Banner_Model } from "../Models/Banner.model.js";
 import bcrypt from 'bcrypt';
@@ -27,6 +27,7 @@ import Quote_model from "../Models/Quote.model.js";
 import { OAuth2Client } from 'google-auth-library';
 import { Planning_History_Model } from "../Models/planning_history.model.js";
 import mongoose from "mongoose";
+import { error } from "console";
 
 
 
@@ -2575,13 +2576,38 @@ export const verifyOtp = async (req, res) => {
 
 
 export const updateAddress = async (req, res) => {
+
+    await profile.single("profile")(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: "Error uploading image" });
+        }
+        const { _id, address, name } = req?.body;
+        const isExistUser = await user_Model.findById(_id);
+        if (!isExistUser) {
+            return res.status(400).json({ error: "Error id not found" });
+        }
+
+        isExistUser.address = address;
+        isExistUser.name = name
+
+        if (req?.file) {
+            const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null' ))
+            if (isExistUser?.profile && fs.existsSync(previousImagePath)) {
+                fs.unlinkSync(previousImagePath);
+            }
+            isExistUser.profile = "profile/" + req.file?.filename
+        }
+        await isExistUser.save();
+        return res.json({ message: "data_updated" });
+    });
+}
+
+export const userDataById = async (req, res) => {
     try {
-        const { _id, address, googleAddress } = req?.body;
-        const isExistUser = await user_Model.findOne({ _id: _id });
+        const { id } = req?.params;
+        const isExistUser = await user_Model.findOne({ _id: id });
         if (isExistUser) {
-            isExistUser.address = address ?? isExistUser?.address;
-            await isExistUser.save();
-            return res.status(200).json({ message: 'user_update_successfully' })
+            return res.status(200).json({ userData: isExistUser });
         }
         return res.status(400).json({ message: 'user_not_found' })
     } catch (error) {

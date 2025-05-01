@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'user'
     },
+    profile: {
+        type: String,
+        required: false
+    },
     otp: {
         type: String,
         required: false

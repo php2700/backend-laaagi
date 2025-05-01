@@ -1,12 +1,11 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest,  guestList } from "../Controllers/UserController.js";
+import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
-import { Protect } from "../Middlewares/authMiddleware.js"; // ✅ Fixed path
+import { Protect } from "../Middlewares/authMiddleware.js"; 
 import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
-// import { Protect } from "../Middlewares/authMiddleware.js";
 const UserRouter = express.Router();
 
 UserRouter.get("/profile", Protect, getUserProfile);
@@ -64,7 +63,8 @@ UserRouter.post('/quote', AddQuote);
 UserRouter.post('/register', createUser)
 UserRouter.post('/google-login', loginByGoogle)
 UserRouter.post("/verify-otp", verifyOtp)
-UserRouter.patch("/update-address",Authentication,Authorization(['user']),updateAddress)
+UserRouter.patch("/update",Authentication,Authorization(['user']),updateAddress)
+UserRouter.get('/data/:id',Authentication,Authorization(['user']),userDataById)
 
 
 /*----------------planning ------------*/
@@ -75,5 +75,8 @@ UserRouter.post("/add-planning-history", Authentication, Authorization(['user'])
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
+
+UserRouter.post('/customization-requests', createCustomizationRequest);
+
 
 export default UserRouter;

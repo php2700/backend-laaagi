@@ -24,6 +24,7 @@ app.use("/uploads", express.static("uploads/invitation"))
 app.use("/uploads", express.static("uploads/bestSeller"))
 app.use("/uploads", express.static("uploads/discoverSweets"))
 app.use("/uploads", express.static("uploads/invitationBox"))
+app.use("/uploads", express.static("uploads/profile"))
 // const customizationRoutes = require('../routes/customizationRoutes.js'); 
 
 // const razorpayInstance = new Razorpay({
