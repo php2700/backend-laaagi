@@ -232,15 +232,15 @@ export const addSweets = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { name, amount, category } = req.body;
+        const { name, amount, category, description } = req.body;
 
-        if (!name || !amount || !category) {
-            return res.status(400).json({ error: "Name,amount and category are required." });
+        if (!name || !amount || !category || !description) {
+            return res.status(400).json({ error: "Name,amount,description and category are required." });
         }
 
         const sweetsData = new Sweets_Model({
             image: "sweets/" + req.file?.filename,
-            name, amount, category
+            name, amount, category, description
         });
         await sweetsData.save();
         return res.json({ filename: "sweets/" + req.file?.filename });
@@ -333,10 +333,7 @@ export const updateSweets = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, amount, category } = req.body;
-        if (!name || !amount || !category) {
-            return res.status(400).json({ error: "Name,amount and category are required." });
-        }
+        const { _id, name, amount, category, description } = req.body;
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
             return res.status(404).json({ error: "Sweet not found" });
@@ -345,7 +342,8 @@ export const updateSweets = async (req, res) => {
         const updatedData = {
             name,
             amount,
-            category
+            category,
+            description
         };
         if (req?.file) {
             const previousImagePath = path.join("uploads", existingSweet?.image);
@@ -2414,13 +2412,26 @@ export const userInvitationList = async (req, res) => {
     try {
         console.log(req.query)
         const { category, price } = req?.query;
-        const query = { category };
-        if (price == 'All') {
+        const query = {};
+
+        if (price && price !== 'All') {
+            if (price === '500 & Above') {
+                query.price = { $gte: 500 };
+            } else if (price.includes('-')) {
+                const [priceStart, priceEnd] = price.split('-').map(Number);
+                query.price = {
+                    $gte: priceStart,
+                    $lte: priceEnd,
+                };
+            }
         }
-        else if (price)
-            query.price = price;
+        if (category) {
+            query.category = category;
+        }
+
 
         const invitationData = await Invitation_Model.find(query)
+        console.log(invitationData, '333')
         let i = 0;
         const updatedInvitationData = invitationData.map((invitation) => {
             i++;
@@ -2591,7 +2602,7 @@ export const updateAddress = async (req, res) => {
         isExistUser.name = name
 
         if (req?.file) {
-            const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null' ))
+            const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null'))
             if (isExistUser?.profile && fs.existsSync(previousImagePath)) {
                 fs.unlinkSync(previousImagePath);
             }
