@@ -3,10 +3,10 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: false
     },
     mobile: {
-        type: Number,
+        type: String,
         required: false
     },
     status: {
