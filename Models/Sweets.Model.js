@@ -21,6 +21,10 @@ const sweetsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    sweetscolomn: {
+        type: Boolean,
+        required: false
+    },
 });
 
 const Sweets_Model = mongoose.model("Sweets", sweetsSchema);

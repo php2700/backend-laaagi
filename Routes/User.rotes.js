@@ -70,15 +70,13 @@ UserRouter.get("/planning_list/:userId", Authentication, Authorization(['user'])
 UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory);
 
 /*------------------- guest -----------------*/
-<<<<<<< HEAD
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
-=======
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
 UserRouter.patch('/edit-guest',Authentication,Authorization(['user']),editGuest)
->>>>>>> ee5d8561f06409503110a6a48f4f75f9b0d15010
+
 
 export default UserRouter;

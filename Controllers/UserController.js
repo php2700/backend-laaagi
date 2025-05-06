@@ -75,6 +75,20 @@ export const deleteGuest = async (req, res) => {
         return res.status(400).json({ message: error?.message })
     }
 }
+export const editGuest = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const isExistGuest = await Guest_Model.findOne({ _id: id });
+        if (isExistGuest) {
+            await Guest_Model.findByIdAndDelete(id);
+            return res.status(200).json({ message: 'successfully_edit' })
+        }
+        return res.status(400).json({ message: 'guest id not found' })
+    }
+    catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
  export const getUserProfile = asyncHandler(async (req, res) => {
     // authMiddleware ne user ko req.user mein attach kar diya hai
     const user = req.user;
