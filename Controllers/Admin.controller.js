@@ -333,7 +333,9 @@ export const updateSweets = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, amount, category, description } = req.body;
+        const { _id, name, amount, category, description, isSweet, isWedding } = req.body;
+
+        console.log(_id, '333')
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
             return res.status(404).json({ error: "Sweet not found" });
@@ -345,6 +347,14 @@ export const updateSweets = async (req, res) => {
             category,
             description
         };
+        if (isSweet) {
+            updatedData.isSweet = (isSweet == 'true') ? true : false
+        }
+        if (isWedding) {
+            updatedData.isWedding = (isWedding == 'true') ? true : false
+        }
+
+        console.log(updatedData, '4444')
         if (req?.file) {
             const previousImagePath = path.join("uploads", existingSweet?.image);
             if (existingSweet?.image && fs.existsSync(previousImagePath)) {
@@ -962,10 +972,7 @@ export const updateInvitation = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, category, description, price } = req.body;
-        if (!name || !category || !description || !price) {
-            return res.status(400).json({ error: "Name,category,price and description are required." });
-        }
+        const { _id, name, category, description, price, isInvitationBoxes } = req.body;
 
         const existInvitation = await Invitation_Model.findById(_id);
         if (!existInvitation) {
@@ -978,6 +985,13 @@ export const updateInvitation = async (req, res) => {
             description,
             price
         };
+
+        if (isInvitationBoxes) {
+            updatedData.isInvitationBoxes = (isInvitationBoxes == 'true') ? true : false
+        }
+
+        console.log(updatedData, '222')
+
         if (req?.file) {
             const previousImagePath = path.join("uploads", existInvitation?.image);
             if (existInvitation?.image && fs.existsSync(previousImagePath)) {
@@ -2327,9 +2341,15 @@ export const userSweetsList = async (req, res) => {
     try {
 
         const query = {};
-        const { category } = req?.query;
+        const { category, isWedding, isSweet } = req?.query;
         if (category) {
             query.category = category;
+        }
+        if (isWedding) {
+            query.isWedding = (isWedding == 'true') ? true : false
+        }
+        if (isSweet) {
+            query.isSweet = (isSweet == 'true') ? true : false
         }
 
         const sweetsData = await Sweets_Model.find(query)
@@ -2416,7 +2436,7 @@ export const userDesigner = async (req, res) => {
 export const userInvitationList = async (req, res) => {
     try {
         console.log(req.query)
-        const { category, price } = req?.query;
+        const { category, price, isInvitationBoxes } = req?.query;
         const query = {};
 
         if (price && price !== 'All') {
@@ -2432,6 +2452,9 @@ export const userInvitationList = async (req, res) => {
         }
         if (category) {
             query.category = category;
+        }
+        if (isInvitationBoxes) {
+            query.isInvitationBoxes = (isInvitationBoxes == 'true') ? true : false
         }
 
 

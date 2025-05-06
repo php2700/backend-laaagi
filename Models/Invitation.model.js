@@ -18,9 +18,14 @@ const invitationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    price:{
-        type:Number,
-        required:true
+    isInvitationBoxes: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    price: {
+        type: Number,
+        required: true
     },
     createdAt: {
         type: Date,
