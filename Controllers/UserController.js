@@ -28,7 +28,7 @@ export const addContactDetails = async (req, res) => {
 export const AddGuest = async (req, res) => {
     try {
         const { userId, name, address, category, email, mobile, guestNo, pincode } = req?.body;
-        console.log(req?.body)
+
         if (!userId || !name || !category || !email || !mobile) {
             return res.status(400).json({ message: "field are require" })
         }
@@ -54,6 +54,25 @@ export const guestList = async (req, res) => {
         const guestData = await Guest_Model.find({ userId: userId })
         console.log(guestData, 'rrrrr')
         return res.status(200).json({ guestList: guestData })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
+
+export const editGuest = async (req, res) => {
+    try {
+        const { _id,
+            name, mobile, guestNo, address,
+            email, category,
+            pincode } = req?.body;
+        const isExistGuestData = await Guest_Model.findOne({ _id: _id })
+        if (isExistGuestData) {
+            await Guest_Model.findByIdAndUpdate(_id, {
+                name, guestNo, address, pincode, email, category,mobile
+            })
+            return res.status(200).json({message:'data-update-successfully'})
+        }
+        return res.status(400).json({ message: 'no-data-found' })
     } catch (error) {
         return res.status(400).json({ message: error?.message })
     }
@@ -131,7 +150,7 @@ export const updateUserProfile = async (req, res) => {
 export const createCustomizationRequest = async (req, res) => {
 
     try {
-        console.log("---------------------------------",req.body)
+        console.log("---------------------------------", req.body)
         const { firstName, lastName, mobile, message, invitationId } = req.body;
 
         if (!firstName || !lastName || !mobile) {

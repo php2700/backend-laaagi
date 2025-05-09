@@ -28,6 +28,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { Planning_History_Model } from "../Models/planning_history.model.js";
 import mongoose from "mongoose";
 import { error } from "console";
+import Designer_Quote_model from "../Models/Designer-Quote.model.js";
 
 
 
@@ -1283,7 +1284,7 @@ export const addDryFruit = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { name } = req.body;
+        const { name, amount, description } = req.body;
 
         if (!name) {
             return res.status(400).json({ error: "Name" });
@@ -1291,7 +1292,7 @@ export const addDryFruit = async (req, res) => {
 
         const dryFruitData = new Dry_fruit_Model({
             image: "dryFruit/" + req.file?.filename,
-            name,
+            name, amount, description
         });
         await dryFruitData.save();
         return res.json({ filename: "dryFruit/" + req.file?.filename });
@@ -1303,12 +1304,14 @@ export const updateDryFruit = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, } = req.body;
+        const { _id, name, amount, description } = req.body;
         if (!name) {
             return res.status(400).json({ error: " name are required." });
         }
         const updatedData = {
             name,
+            amount,
+            description
         };
         if (req?.file) {
             updatedData.image = "dryFruit/" + req.file?.filename
@@ -2528,6 +2531,30 @@ export const AddQuote = async (req, res) => {
     }
 }
 
+
+export const AddDesignerQuote = async (req, res) => {
+    try {
+        const { firstName, lastName, email, mobile, message, designerId } = req?.body;
+        const designerQuoteData = await new Designer_Quote_model({
+            designerId,
+            firstName, lastName, email, mobile, message
+        });
+        await designerQuoteData.save();
+        return res.status(200).json({
+            message: 'successfully_add'
+        });
+    }
+    catch (error) {
+        console.error("Error fetching :", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching contact us data",
+            error: error.message
+        });
+    }
+}
+
+
 export const createUser = async (req, res) => {
     try {
         const { mobile } = req?.body;
@@ -2589,7 +2616,7 @@ export const loginByGoogle = async (req, res) => {
                 registerBy: 'google'
             });
         }
-        const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1d" });
+        const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1 d" });
 
         res.json({ token, user });
     } catch (err) {
@@ -2607,7 +2634,7 @@ export const verifyOtp = async (req, res) => {
         let user = await user_Model.findOne({ otp: otp, _id: _id });
         if (user) {
             user.otp = null;
-            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1d" });
+            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1 d" });
             await user.save();
             return res.json({ token, user });
         }

@@ -1,10 +1,10 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest,  guestList } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
+import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
-import { Protect } from "../Middlewares/authMiddleware.js"; 
+import { Protect } from "../Middlewares/authMiddleware.js";
 import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
 const UserRouter = express.Router();
 
@@ -59,12 +59,15 @@ UserRouter.post("/contact-us-detail", addContactUsDetail);
 /*----------------quote ----------------*/
 UserRouter.post('/quote', AddQuote);
 
+/*----------------add-designerQuote ----------------*/
+UserRouter.post('/designer-quote', AddDesignerQuote);
+
 /*--------------user----------*/
 UserRouter.post('/register', createUser)
 UserRouter.post('/google-login', loginByGoogle)
 UserRouter.post("/verify-otp", verifyOtp)
-UserRouter.patch("/update",Authentication,Authorization(['user']),updateAddress)
-UserRouter.get('/data/:id',Authentication,Authorization(['user']),userDataById)
+UserRouter.patch("/update", Authentication, Authorization(['user']), updateAddress)
+UserRouter.get('/data/:id', Authentication, Authorization(['user']), userDataById)
 
 
 /*----------------planning ------------*/
@@ -75,6 +78,8 @@ UserRouter.post("/add-planning-history", Authentication, Authorization(['user'])
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
+UserRouter.patch("/edit-guest", Authentication, Authorization(['user']), editGuest);
+
 
 UserRouter.post('/customization-requests', createCustomizationRequest);
 
