@@ -2603,7 +2603,6 @@ export const loginByGoogle = async (req, res) => {
         });
 
         const profile = await googleRes.json();
-
         if (!profile) {
             return res.status(400).json({ message: "Invalid Google token" });
         }
@@ -2656,9 +2655,13 @@ export const updateAddress = async (req, res) => {
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
         }
+        if (address) {
+            isExistUser.address = address;
+        }
+        if (name) {
+            isExistUser.name = name
+        }
 
-        isExistUser.address = address;
-        isExistUser.name = name
 
         if (req?.file) {
             const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null'))
