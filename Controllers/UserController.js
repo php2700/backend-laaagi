@@ -51,8 +51,19 @@ export const AddGuest = async (req, res) => {
 export const guestList = async (req, res) => {
     try {
         const { userId } = req?.params;
-        const guestData = await Guest_Model.find({ userId: userId })
-        console.log(guestData, 'rrrrr')
+        const { q } = req?.query;
+        let filterData = {}
+        if (q) {
+            filterData.$or = [
+                { name: { $regex: q, $options: 'i' } },
+                { address: { $regex: q, $options: 'i' } },
+                { category: { $regex: q, $options: 'i' } }
+
+            ];
+        }
+        filterData.userId = userId
+        const guestData = await Guest_Model.find(filterData)
+        // console.log(guestData, 'rrrrr')
         return res.status(200).json({ guestList: guestData })
     } catch (error) {
         return res.status(400).json({ message: error?.message })
@@ -68,9 +79,9 @@ export const editGuest = async (req, res) => {
         const isExistGuestData = await Guest_Model.findOne({ _id: _id })
         if (isExistGuestData) {
             await Guest_Model.findByIdAndUpdate(_id, {
-                name, guestNo, address, pincode, email, category,mobile
+                name, guestNo, address, pincode, email, category, mobile
             })
-            return res.status(200).json({message:'data-update-successfully'})
+            return res.status(200).json({ message: 'data-update-successfully' })
         }
         return res.status(400).json({ message: 'no-data-found' })
     } catch (error) {

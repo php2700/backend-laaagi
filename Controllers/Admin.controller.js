@@ -29,6 +29,7 @@ import { Planning_History_Model } from "../Models/planning_history.model.js";
 import mongoose from "mongoose";
 import { error } from "console";
 import Designer_Quote_model from "../Models/Designer-Quote.model.js";
+import { response } from "express";
 
 
 
@@ -2671,7 +2672,7 @@ export const updateAddress = async (req, res) => {
             isExistUser.profile = "profile/" + req.file?.filename
         }
         await isExistUser.save();
-        return res.json({ message: "data_updated" });
+        return res.json({ message: "data_updated",response:isExistUser });
     });
 }
 
