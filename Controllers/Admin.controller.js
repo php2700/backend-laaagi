@@ -2647,10 +2647,12 @@ export const verifyOtp = async (req, res) => {
 
 export const updateAddress = async (req, res) => {
 
-    await uploadImg.single("profile")(req, res, async (err) => {
+    uploadImg.single("profile")(req, res, async (err) => {
+        console.log(err,"444444444444444")
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
+        console.log("ghghghghghghghghghghghghghghghghghghghghghghgh")
         const { _id, address, name } = req?.body;
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
