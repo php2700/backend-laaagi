@@ -51,11 +51,11 @@ export const AddGuest = async (req, res) => {
 export const guestList = async (req, res) => {
     try {
         const { userId } = req?.params;
-        const { q } = req?.query;
-        let filterData = {}
+        const {q} =req?.query;
+        let filterData={}
         if (q) {
             filterData.$or = [
-                { name: { $regex: q, $options: 'i' } },
+                { name: { $regex: q, $options: 'i' } },  
                 { address: { $regex: q, $options: 'i' } },
                 { category: { $regex: q, $options: 'i' } }
 
