@@ -1,6 +1,6 @@
 import { Admin_Model } from "../Models/Admin.model.js";
 import jwt from 'jsonwebtoken'
-import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, profile, review, sweets, wedding } from "../Config/imageupload.js";
+import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, review, sweets, uploadImg, wedding } from "../Config/imageupload.js";
 import { Video } from "../Config/videoupload.js"
 import { Banner_Model } from "../Models/Banner.model.js";
 import bcrypt from 'bcrypt';
@@ -2647,7 +2647,7 @@ export const verifyOtp = async (req, res) => {
 
 export const updateAddress = async (req, res) => {
 
-    await profile.single("profile")(req, res, async (err) => {
+    await uploadImg.single("profile")(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
@@ -2672,7 +2672,7 @@ export const updateAddress = async (req, res) => {
             isExistUser.profile = "profile/" + req.file?.filename
         }
         await isExistUser.save();
-        return res.json({ message: "data_updated",response:isExistUser });
+        return res.json({ message: "data_updated", response: isExistUser });
     });
 }
 

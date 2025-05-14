@@ -51,11 +51,11 @@ export const AddGuest = async (req, res) => {
 export const guestList = async (req, res) => {
     try {
         const { userId } = req?.params;
-        const {q} =req?.query;
-        let filterData={}
+        const { q } = req?.query;
+        let filterData = {}
         if (q) {
             filterData.$or = [
-                { name: { $regex: q, $options: 'i' } },  
+                { name: { $regex: q, $options: 'i' } },
                 { address: { $regex: q, $options: 'i' } },
                 { category: { $regex: q, $options: 'i' } }
 
@@ -76,11 +76,31 @@ export const editGuest = async (req, res) => {
             name, mobile, guestNo, address,
             email, category,
             pincode } = req?.body;
+        const updateData = {};
+        if (name) {
+            updateData.name = name
+        }
+        if (mobile) {
+            updateData.mobile = mobile
+        }
+        if (guestNo) {
+            updateData.guestNo = guestNo
+        }
+        if (address) {
+            updateData.address = address
+        }
+        if (email) {
+            updateData.email = email
+        }
+        if (category) {
+            updateData.category = category
+        }
+        if (pincode) {
+            updateData.pincode = pincode
+        }
         const isExistGuestData = await Guest_Model.findOne({ _id: _id })
         if (isExistGuestData) {
-            await Guest_Model.findByIdAndUpdate(_id, {
-                name, guestNo, address, pincode, email, category, mobile
-            })
+            await Guest_Model.findByIdAndUpdate(_id, updateData)
             return res.status(200).json({ message: 'data-update-successfully' })
         }
         return res.status(400).json({ message: 'no-data-found' })
@@ -88,6 +108,25 @@ export const editGuest = async (req, res) => {
         return res.status(400).json({ message: error?.message })
     }
 }
+
+
+export const updateAddressPerson = async (req, res) => {
+    try {
+        const { address, mobile, pincode } = req.body;
+
+        const isExistGuestData = await Guest_Model.findOne({ mobile });
+        if (isExistGuestData) {
+            isExistGuestData.address = address;
+            isExistGuestData.pincode = pincode;
+            await isExistGuestData.save();
+            return res.status(200).json({ message: 'Data updated successfully' });
+        }
+        return res.status(404).json({ message: 'Guest not found' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message || 'Server error' });
+    }
+};
+
 
 export const deleteGuest = async (req, res) => {
     try {

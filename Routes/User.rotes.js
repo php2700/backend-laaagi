@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, guestList } from "../Controllers/UserController.js";
+import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, guestList,  updateAddressPerson } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -79,6 +79,7 @@ UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
 UserRouter.patch("/edit-guest", Authentication, Authorization(['user']), editGuest);
+UserRouter.patch("/update-address-person", updateAddressPerson)
 
 
 UserRouter.post('/customization-requests', createCustomizationRequest);

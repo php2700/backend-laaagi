@@ -247,6 +247,6 @@ const dryFruit = multer({ storage: uploadDryFruit })
 const bestSeller = multer({ storage: uploadBestSeller })
 const invitationBox = multer({ storage: uploadInvitationBox })
 const discoverSweets = multer({ storage: uploadDiscoverSweets })
-const profile=multer({storage:uploadProfile})
+const uploadImg=multer({storage:uploadProfile})
 
-export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets,profile };
+export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets,uploadImg };
