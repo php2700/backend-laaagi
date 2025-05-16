@@ -20,7 +20,11 @@ const contactSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 const Contact_us_model = mongoose.model("contact", contactSchema)

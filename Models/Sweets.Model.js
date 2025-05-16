@@ -35,6 +35,8 @@ const sweetsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+}, {
+    timestamps: true
 });
 
 const Sweets_Model = mongoose.model("Sweets", sweetsSchema);

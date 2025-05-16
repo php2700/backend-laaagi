@@ -31,6 +31,8 @@ const invitationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+}, {
+    timestamps: true
 });
 
 const Invitation_Model = mongoose.model("invitation", invitationSchema);

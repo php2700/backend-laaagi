@@ -16,8 +16,14 @@ const dryFruitSchema = new mongoose.Schema({
     description: {
         type: String,
         required: false
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 
+}, {
+    timestamps: true
 });
 
 const Dry_fruit_Model = mongoose.model("DryFruit", dryFruitSchema);

@@ -21,7 +21,12 @@ const customizationSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+
 })
 
 const Customization_model = mongoose.model("customization", customizationSchema)

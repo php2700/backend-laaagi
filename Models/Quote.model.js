@@ -10,8 +10,8 @@ const quoteSchema = new mongoose.Schema({
         required: true
     },
     decorationId: {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Decoration",
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Decoration",
         required: true
     },
     email: {
@@ -25,7 +25,11 @@ const quoteSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 const Quote_model = mongoose.model("quote", quoteSchema)
