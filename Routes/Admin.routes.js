@@ -1,5 +1,5 @@
 import express from "express";
-import { aboutList, addAbout, addAds, addBestSeller, addDecoration, addDesigner, addDiscoverSweets, addDryFruit, addInvitation, addInvitationBox, addPlanning, addReview, addSweets, addWedding, adsList, authAdmin, bestSellerList, contactUsList, customization, customizationList, dashboardData, decorationList, DeleteBanner, deleteBestSeller, DeleteDecoration, deleteDesigner, deleteDryFruit, deleteInvitation, deletePlanning, deleteReview, DeleteSweet, deleteWedding, discoverSweetsList, dryFruitList, getDesignerList, ImageList, invitationBoxList, invitationList, planningList, quoteList, reviewList, sweetsList, updateABout, updateAds, updateBanner, updateDiscoverSweets, updateDryFruit, updateInvitation, updateInvitationBox, updatePlanning, updateReview, updateSweets, updateUser, updateWedding, uploadImage, userList, weddingList } from "../Controllers/Admin.controller.js";
+import { aboutList, addAbout, addAds, addBestSeller, addDecoration, addDesigner, addDiscoverSweets, addDryFruit, addInvitation, addInvitationBox, addPlanning, addReview, addSweets, addWedding, adsList, authAdmin, bestSellerList, contactUsList, customization, customizationList, dashboardData, decorationList, DeleteBanner, deleteBestSeller, DeleteDecoration, deleteDesigner, deleteDryFruit, deleteInvitation, deletePlanning, deleteReview, DeleteSweet, deleteWedding, designerQuoteList, discoverSweetsList, dryFruitList, getDesignerList, ImageList, invitationBoxList, invitationList, planningList, quoteList, reviewList, sweetsList, updateABout, updateAds, updateBanner, updateDiscoverSweets, updateDryFruit, updateInvitation, updateInvitationBox, updatePlanning, updateReview, updateSweets, updateUser, updateWedding, uploadImage, userList, weddingList } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 
@@ -105,5 +105,9 @@ AdminRouter.get("/customization-list", Authentication, Authorization(["Admin"]),
 
 /*----------------------- quote --------------*/
 AdminRouter.get("/quote-list", Authentication, Authorization(["Admin"]), quoteList)
+
+/*-----------------------designer quote --------------*/
+AdminRouter.get("/designer-quote-list", Authentication, Authorization(["Admin"]), designerQuoteList)
+
 
 export default AdminRouter;

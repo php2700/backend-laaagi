@@ -2765,3 +2765,83 @@ export const userAddPlanningHistory = async (req, res) => {
         return res.status(400).json({ message: error?.message })
     }
 }
+
+
+export const designerQuoteList = async (req, res) => {
+    try {
+        const { search, page = 1 } = req.query;
+        const perPage = 10;
+
+        let filter = {};
+        if (search) {
+            filter = {
+                $or: [
+                    { firstName: { $regex: search, $options: "i" } },
+                    { lastName: { $regex: search, $options: "i" } },
+                ],
+            };
+        };
+
+        const QuoteData = await Designer_Quote_model.find(filter)
+            .populate("designerId")
+            .skip((page - 1) * perPage)
+            .limit(perPage);
+
+        const totalCount = await Designer_Quote_model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedQuoteData = QuoteData?.map((quote) => {
+            i++;
+            return {
+                ...quote.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedQuoteData,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedQuoteData?.length,
+            total: totalCount,
+        };
+        console.log(paginationDetails,"asss+")
+
+        return res.status(200).json({
+            quoteData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching ads:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching quoteData",
+            error: error.message
+        });
+    }
+}

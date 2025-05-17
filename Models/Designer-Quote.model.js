@@ -11,7 +11,7 @@ const designerQuoteSchema = new mongoose.Schema({
     },
     designerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Decoration",
+        ref: "Designer",
         required: true
     },
     email: {

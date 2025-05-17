@@ -5,6 +5,7 @@ import connectDb from './Config/db.js';
 import AdminRouter from './Routes/Admin.routes.js';
 import UserRouter from './Routes/User.rotes.js';
 import Razorpay from 'razorpay';
+import crypto from 'crypto'
 
 const app = express();
 connectDb()
@@ -27,17 +28,15 @@ app.use("/uploads", express.static("uploads/invitationBox"))
 app.use("/uploads", express.static("uploads/profile"))
 // const customizationRoutes = require('../routes/customizationRoutes.js'); 
 
-// const razorpayInstance = new Razorpay({
-//     // Replace with your key_id
-//     key_id: rzp_test_fiIwmRET6CApc2,
-//     // Replace with your key_secret
-//     key_secret: YAEUthsup8SijNs3iveeVlL1
-// });
+const razorpayInstance = new Razorpay({
+    key_id: 'rzp_test_QpiAXSeb8pm1CJ',
+    key_secret: process.env.RAZORPAY_SECRETKEY
+});
 
 
 app.post('/createOrder', (req, res) => {
-    const { amount, currency, receipt, notes } = req.body;
-    razorpayInstance.orders.create({ amount, currency, receipt, notes },
+    const { amount, currency, receipt } = req.body;
+    razorpayInstance.orders.create({ amount, currency, receipt },
         (err, order) => {
             if (!err)
                 res.json(order)
@@ -47,33 +46,21 @@ app.post('/createOrder', (req, res) => {
     )
 });
 
-//Inside app.js
-app.post('/verifyOrder',  (req, res)=>{ 
-    
-    // STEP 7: Receive Payment Data
-    const {order_id, payment_id} = req.body;     
-    const razorpay_signature =  req.headers['x-razorpay-signature'];
-
-    // Pass yours key_secret here
-    const key_secret = YAEUthsup8SijNs3iveeVlL1;     
-
-    // STEP 8: Verification & Send Response to User
-    
-    // Creating hmac object 
-    let hmac = crypto.createHmac('sha256', key_secret); 
-
-    // Passing the data to be hashed
-    hmac.update(order_id + "|" + payment_id);
-    
-    // Creating the hmac in the required format
+app.post('/verifyOrder', (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, amount } = req.body;
+    console.log(razorpay_signature, 'razorpay_signature')
+    const key_secret = process.env.RAZORPAY_SECRETKEY
+    let hmac = crypto.createHmac('sha256', key_secret);
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generated_signature = hmac.digest('hex');
-    
-    
-    if(razorpay_signature===generated_signature){
-        res.json({success:true, message:"Payment has been verified"})
+
+    if (razorpay_signature === generated_signature) {
+        res.json({ success: true, message: "Payment has been verified" })
     }
-    else
-    res.json({success:false, message:"Payment verification failed"})
+    else {
+        res.json({ success: false, message: "Payment verification failed" })
+
+    }
 });
 
 
