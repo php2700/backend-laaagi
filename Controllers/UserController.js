@@ -1,7 +1,9 @@
 import Contact_model from "../Models/Contact_us.model.js";
 import Customization_model from "../Models/Customization.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
+import { Payment_History_Model } from "../Models/payment_history.js";
 import User from '../Models/User.js';
+import { user_Model } from "../Models/User.model.js";
 
 export const addContactDetails = async (req, res) => {
     try {
@@ -242,3 +244,142 @@ export const createCustomizationRequest = async (req, res) => {
 };
 
 
+export const paymentHistory = async (req, res) => {
+    try {
+        console.log("Received payment request:", req.body);
+
+        const { sweet, guest, weight, amount, userId,razorpay_payment_id,invitationName } = req?.body;
+
+        if (!weight || !amount || !userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Weight, amount, and userId are required.',
+            });
+        }
+
+        if (!Array.isArray(guest) || !Array.isArray(sweet)) {
+            return res.status(400).json({
+                success: false,
+                message: 'guest and sweet must be arrays.',
+            });
+        }
+
+        const newPayment = new Payment_History_Model({
+            guest,
+            sweet,
+            weight,
+            amount,
+            userId,
+            razorpay_payment_id,
+            invitationName
+        });
+
+        console.log(newPayment, "newPaymet")
+
+        const savedPayment = await newPayment.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Payment history saved successfully!',
+            data: savedPayment,
+        });
+
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                success: false,
+                message: `Validation Failed: ${messages.join(', ')}`
+            });
+        }
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to save payment history due to a server error.',
+            error: error.message
+        });
+    }
+};
+
+
+// export const getPaymentHistory = async (req, res) => {
+//     try {
+//         const { userId } = req?.params;
+//         const { q } = req?.query;
+//         let filterData = {}
+//         if (q) {
+//             filterData.$or = [
+//                 { name: { $regex: q, $options: 'i' } },
+//                 { address: { $regex: q, $options: 'i' } },
+//                 { category: { $regex: q, $options: 'i' } }
+
+//             ];
+//         }
+//         filterData.userId = userId
+//         const paymentHistory = await Payment_History_Model.find(filterData)
+//         await Promise.all(paymentHistory.map(async (payment) => {
+//             const updatedGuests = await Promise.all(payment.guest.map(async (guest) => {
+//                 const guestData = await Guest_Model.findOne({ _id: guest?.guestId });
+
+//                 return {
+//                     ...guest.toObject?.() ?? guest,
+//                     name: guestData?.name || null,
+//                     address: guestData?.address|| null
+//                 };
+//             }));
+//             payment.guest = updatedGuests;
+//             console.log(payment)
+//         }));
+
+
+//         return res.status(200).json({ paymentHistory: paymentHistory })
+//     } catch (error) {
+//         return res.status(400).json({ message: error?.message })
+//     }
+// };
+
+
+export const getPaymentHistory = async (req, res) => {
+    try {
+        const { userId } = req?.params;
+        const { q } = req?.query;
+
+        if (!userId) {
+            return res.status(400).json({ message: "Missing userId" });
+        }
+
+        let filterData = {};
+        if (q) {
+            filterData.$or = [
+                { name: { $regex: q, $options: 'i' } },
+                { address: { $regex: q, $options: 'i' } },
+                { category: { $regex: q, $options: 'i' } }
+            ];
+        }
+
+        filterData.userId = userId;
+
+        const paymentHistoryDocs = await Payment_History_Model.find(filterData);
+        const paymentHistory = await Promise.all(paymentHistoryDocs?.map(async (paymentDoc) => {
+            const payment = paymentDoc.toObject();
+            const updatedGuests = await Promise.all(payment.guest?.map(async (guest) => {
+                let guestData = await Guest_Model.findOne({ _id: guest?.guestId }).lean();
+                if (!guestData) {
+                    guestData = await user_Model.findOne({ _id: guest?.guestId }).lean();
+                }
+                return {
+                    ...guest,
+                    name: guestData?.name || null,
+                    address: guestData?.address || null
+                };
+            }));
+            payment.guest = updatedGuests;
+            return payment;
+        }));
+
+
+
+        return res.status(200).json({ paymentHistory });
+    } catch (error) {
+        console.error("Error fetching payment history:", error);
+        return res.status(400).json({ message: error?.message || "Something went wrong" });
+    }
+};

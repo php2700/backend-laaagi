@@ -6,6 +6,7 @@ import AdminRouter from './Routes/Admin.routes.js';
 import UserRouter from './Routes/User.rotes.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto'
+import { paymentHistory } from './Controllers/UserController.js';
 
 const app = express();
 connectDb()
@@ -46,19 +47,18 @@ app.post('/createOrder', (req, res) => {
     )
 });
 
-app.post('/verifyOrder', (req, res) => {
+app.post('/verifyOrder', async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, amount } = req.body;
-    console.log(razorpay_signature, 'razorpay_signature')
     const key_secret = process.env.RAZORPAY_SECRETKEY
     let hmac = crypto.createHmac('sha256', key_secret);
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generated_signature = hmac.digest('hex');
 
     if (razorpay_signature === generated_signature) {
-        res.json({ success: true, message: "Payment has been verified" })
+        return await paymentHistory(req, res)
     }
     else {
-        res.json({ success: false, message: "Payment verification failed" })
+        return res.json({ success: false, message: "Payment verification failed" })
 
     }
 });

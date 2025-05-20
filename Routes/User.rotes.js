@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, guestList,  updateAddressPerson } from "../Controllers/UserController.js";
+import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, guestList, updateAddressPerson } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -83,6 +83,12 @@ UserRouter.patch("/update-address-person", updateAddressPerson)
 
 
 UserRouter.post('/customization-requests', createCustomizationRequest);
+
+
+/*------------------------payment history --------------------------*/
+UserRouter.get("/payment-history/:userId", Authentication, Authorization(['user']), getPaymentHistory);
+
+
 
 
 export default UserRouter;
