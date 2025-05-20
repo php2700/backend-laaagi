@@ -14,6 +14,10 @@ const paymentHistorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    invitationName: {
+        type: String,
+        required: true
+    },
     guest: [
         {
             guestId: {
@@ -26,26 +30,44 @@ const paymentHistorySchema = new mongoose.Schema({
             }
         }
     ],
-    razorpay_payment_id: {
+    boxName: {
         type: String,
         required: true
     },
-    invitationName:{
-         type: String,
+    invAmounts: {
+        type: [String],
         required: true
     },
-    sweet: [
+    invitationImg: {
+        type: String,
+        required: true
+    },
+    boxAmount: {
+        type: Number,
+        required: true
+    },
+    invDesc: {
+        type: String,
+        required: true
+    },
+    sweets: [
         {
+            index: {
+                type: Number,
+                required: true
+            },
             name: {
                 type: String,
                 required: true
-            },
-            amount: {
-                type: Number,
-                required: true
             }
         }
-    ]
+    ],
+    razorpay_order_id: {
+        type: String,
+        required: true
+    },
+
+
 }, {
     timestamps: true
 });

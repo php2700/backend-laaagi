@@ -248,7 +248,7 @@ export const paymentHistory = async (req, res) => {
     try {
         console.log("Received payment request:", req.body);
 
-        const { sweet, guest, weight, amount, userId,razorpay_payment_id,invitationName } = req?.body;
+        const { guest, sweets, weight, amount, userId, razorpay_order_id, invitationName, boxName, invAmounts, invitationImg, boxAmount, invDesc } = req?.body;
 
         if (!weight || !amount || !userId) {
             return res.status(400).json({
@@ -257,7 +257,7 @@ export const paymentHistory = async (req, res) => {
             });
         }
 
-        if (!Array.isArray(guest) || !Array.isArray(sweet)) {
+        if (!Array.isArray(guest)) {
             return res.status(400).json({
                 success: false,
                 message: 'guest and sweet must be arrays.',
@@ -266,12 +266,12 @@ export const paymentHistory = async (req, res) => {
 
         const newPayment = new Payment_History_Model({
             guest,
-            sweet,
             weight,
             amount,
             userId,
-            razorpay_payment_id,
-            invitationName
+            razorpay_order_id,
+            invitationName,
+            boxName, invAmounts, invitationImg, boxAmount, invDesc, sweets
         });
 
         console.log(newPayment, "newPaymet")
@@ -299,42 +299,6 @@ export const paymentHistory = async (req, res) => {
     }
 };
 
-
-// export const getPaymentHistory = async (req, res) => {
-//     try {
-//         const { userId } = req?.params;
-//         const { q } = req?.query;
-//         let filterData = {}
-//         if (q) {
-//             filterData.$or = [
-//                 { name: { $regex: q, $options: 'i' } },
-//                 { address: { $regex: q, $options: 'i' } },
-//                 { category: { $regex: q, $options: 'i' } }
-
-//             ];
-//         }
-//         filterData.userId = userId
-//         const paymentHistory = await Payment_History_Model.find(filterData)
-//         await Promise.all(paymentHistory.map(async (payment) => {
-//             const updatedGuests = await Promise.all(payment.guest.map(async (guest) => {
-//                 const guestData = await Guest_Model.findOne({ _id: guest?.guestId });
-
-//                 return {
-//                     ...guest.toObject?.() ?? guest,
-//                     name: guestData?.name || null,
-//                     address: guestData?.address|| null
-//                 };
-//             }));
-//             payment.guest = updatedGuests;
-//             console.log(payment)
-//         }));
-
-
-//         return res.status(200).json({ paymentHistory: paymentHistory })
-//     } catch (error) {
-//         return res.status(400).json({ message: error?.message })
-//     }
-// };
 
 
 export const getPaymentHistory = async (req, res) => {
