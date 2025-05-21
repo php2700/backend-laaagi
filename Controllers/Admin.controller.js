@@ -336,8 +336,6 @@ export const updateSweets = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
         const { _id, name, amount, category, description, isSweet, isWedding } = req.body;
-
-        console.log(_id, '333')
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
             return res.status(404).json({ error: "Sweet not found" });
@@ -356,7 +354,6 @@ export const updateSweets = async (req, res) => {
             updatedData.isWedding = (isWedding == 'true') ? true : false
         }
 
-        console.log(updatedData, '4444')
         if (req?.file) {
             const previousImagePath = path.join("uploads", existingSweet?.image);
             if (existingSweet?.image && fs.existsSync(previousImagePath)) {
