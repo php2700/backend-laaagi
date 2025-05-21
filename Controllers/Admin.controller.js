@@ -2354,7 +2354,7 @@ export const userSweetsList = async (req, res) => {
             query.isSweet = (isSweet == 'true') ? true : false
         }
 
-        const sweetsData = await Sweets_Model.find(query)
+        const sweetsData = await Sweets_Model.find(query).sort({ createdAt: -1 });
         let i = 0;
         const updatedSweets = sweetsData?.map((sweet) => {
             i++;
@@ -2825,7 +2825,7 @@ export const designerQuoteList = async (req, res) => {
             to: (page - 1) * perPage + updatedQuoteData?.length,
             total: totalCount,
         };
-        console.log(paginationDetails,"asss+")
+        console.log(paginationDetails, "asss+")
 
         return res.status(200).json({
             quoteData: paginationDetails,
