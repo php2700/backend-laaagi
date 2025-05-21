@@ -22,7 +22,7 @@ const bannerFile = multer.diskStorage({
 const uploadBanner = multer({
   storage: bannerFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -53,7 +53,7 @@ const SweetFile = multer.diskStorage({
 const uploadSweets = multer({
   storage: SweetFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -84,7 +84,7 @@ const decorationFile = multer.diskStorage({
 const uploadDecoration = multer({
   storage: decorationFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -115,7 +115,7 @@ const DesignerFile = multer.diskStorage({
 const uploadDesigner = multer({
   storage: DesignerFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -147,7 +147,7 @@ const adsFile = multer.diskStorage({
 const uploadAds = multer({
   storage: adsFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -179,7 +179,7 @@ const reviewFile = multer.diskStorage({
 const uploadReview = multer({
   storage: reviewFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -211,7 +211,7 @@ const invitationFile = multer.diskStorage({
 const uploadInvitation = multer({
   storage: invitationFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -243,7 +243,7 @@ const weddingFile = multer.diskStorage({
 const uploadWedding = multer({
   storage: weddingFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -274,7 +274,7 @@ const dryFruitFile = multer.diskStorage({
 const uploadDryFruit = multer({
   storage: dryFruitFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -306,7 +306,7 @@ const bestSellerFile = multer.diskStorage({
 const uploadBestSeller = multer({
   storage: bestSellerFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -337,7 +337,7 @@ const invitationBoxFile = multer.diskStorage({
 const uploadInvitationBox = multer({
   storage: invitationBoxFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -368,7 +368,7 @@ const discoverSweetsFile = multer.diskStorage({
 const uploadDiscoverSweets = multer({
   storage: discoverSweetsFile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -399,7 +399,7 @@ const profile = multer.diskStorage({
 const uploadProfile = multer({
   storage: profile,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
