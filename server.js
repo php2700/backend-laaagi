@@ -11,7 +11,11 @@ import { paymentHistory } from './Controllers/UserController.js';
 const app = express();
 connectDb()
 dotenv.config();
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: 'https://admin.laaagi.com',
+  credentials: true,
+}));
 app.use(express.json())
 app.use('/static', express.static('static'))
 app.use('/uploads', express.static('uploads'))
