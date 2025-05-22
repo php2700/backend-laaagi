@@ -254,7 +254,7 @@ export const sweetsList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const sweetsData = await Sweets_Model.find().skip((page - 1) * perPage).limit(perPage);
+        const sweetsData = await Sweets_Model.find().sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Sweets_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -412,6 +412,7 @@ export const decorationList = async (req, res) => {
         const perPage = 10;
 
         const decorationData = await Decoration_Model.find()
+            .sort({ createdAt: -1 })
             .skip((page - 1) * perPage)
             .limit(perPage);
 
@@ -516,7 +517,7 @@ export const getDesignerList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const designernData = await Designer_Model.find().skip((page - 1) * perPage).limit(perPage);
+        const designernData = await Designer_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Designer_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -1011,7 +1012,7 @@ export const invitationList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const invitationData = await Invitation_Model.find().skip((page - 1) * perPage).limit(perPage);
+        const invitationData = await Invitation_Model.find().sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Invitation_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -2354,7 +2355,7 @@ export const userSweetsList = async (req, res) => {
             query.isSweet = (isSweet == 'true') ? true : false
         }
 
-        const sweetsData = await Sweets_Model.find(query).sort({ createdAt: -1 });
+        const sweetsData = await Sweets_Model.find(query).sort({ updatedAt: -1 });
         let i = 0;
         const updatedSweets = sweetsData?.map((sweet) => {
             i++;
@@ -2382,7 +2383,7 @@ export const userSweetsList = async (req, res) => {
 export const userDecorationList = async (req, res) => {
     try {
         const { category } = req.query;
-        const decorationData = await Decoration_Model.find({ category: category })
+        const decorationData = await Decoration_Model.find({ category: category }).sort({ createdAt: -1 });
 
         let i = 0;
         const updatedDecoration = decorationData.map((decoration) => {
@@ -2411,7 +2412,7 @@ export const userDesigner = async (req, res) => {
     try {
         const { category } = req.query;
 
-        const designernData = await Designer_Model.find({ category: category })
+        const designernData = await Designer_Model.find({ category: category }).sort({ createdAt: -1 });
         let i = 0;
         const updatedDesigner = designernData.map((designer) => {
             i++;
@@ -2460,7 +2461,7 @@ export const userInvitationList = async (req, res) => {
         }
 
 
-        const invitationData = await Invitation_Model.find(query)
+        const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
         console.log(invitationData, '333')
         let i = 0;
         const updatedInvitationData = invitationData.map((invitation) => {
