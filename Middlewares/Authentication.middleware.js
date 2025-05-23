@@ -22,7 +22,6 @@ const Authentication = async (req, res, next) => {
             } else {
                 user = await Admin_Model.findById(decoded._id).exec();
             }
-        
             if (decoded.role === "user") {
                 if (!user) {
                     return res.status(404).json({ Message: "User not found", status: "error" });

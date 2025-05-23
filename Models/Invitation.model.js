@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { type } from "os";
 
 const invitationSchema = new mongoose.Schema({
     image: {
@@ -19,13 +18,29 @@ const invitationSchema = new mongoose.Schema({
         required: true
     },
     price:{
-        type:String,
+        type:Number,
         required:true
     },
     createdAt: {
         type: Date,
         default: Date.now,
     },
+    //   designFileUrl: {
+    //     type: String,
+    //     required: true
+    // },
+    // amount: {
+    //     type: String,
+    //     required: true
+    // },
+    //   updatedAt: {
+    //     type: Date,
+    //     default: Date.now
+    // },
+    //  imagePreviewUrl: { 
+    //     type: String,
+    //     required: false 
+    // },
 });
 
 const Invitation_Model = mongoose.model("invitation", invitationSchema);

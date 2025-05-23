@@ -10,10 +10,14 @@ const sweetsSchema = new mongoose.Schema({
         required: true
     },
     amount: {
-        type: Number,
+        type: String,
         required: true
     },
     category: {
+        type: String,
+        required: true
+    }, 
+    description: {
         type: String,
         required: true
     },
@@ -21,9 +25,12 @@ const sweetsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    sweetscolomn: {
-        type: Boolean,
-        required: false
+    layoutColumns: { 
+        type: Number,    
+        required: false,  
+        default: 1,      
+        min: 1,           
+        max: 2          
     },
 });
 

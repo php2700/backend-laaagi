@@ -4,14 +4,23 @@ import dotenv from 'dotenv'
 import connectDb from './Config/db.js';
 import AdminRouter from './Routes/Admin.routes.js';
 import UserRouter from './Routes/User.rotes.js';
-// import Router from './Routes/profile.js';
+import Razorpay from 'razorpay';
+// import  formRoutes from './Routes/formRoutes.js';
+// const path = require('path');
 
-
-const app = express();
-connectDb()
 dotenv.config();
+connectDb()
+const app = express();
+
+
 app.use(cors());
 app.use(express.json())
+app.use(cors());
+// app.use(express.json());
+
+// Routes
+
+// app.use('/uploads', express.static('uploads'));
 app.use('/static', express.static('static'))
 app.use('/uploads', express.static('uploads'))
 app.use('/uploads', express.static('uploads/banner'))
@@ -25,7 +34,80 @@ app.use("/uploads", express.static("uploads/invitation"))
 app.use("/uploads", express.static("uploads/bestSeller"))
 app.use("/uploads", express.static("uploads/discoverSweets"))
 app.use("/uploads", express.static("uploads/invitationBox"))
+app.use("/uploads", express.static("uploads/profile"))
+
+
 // const customizationRoutes = require('../routes/customizationRoutes.js'); 
+
+// const razorpayInstance = new Razorpay({
+//     // Replace with your key_id
+//     key_id: rzp_test_fiIwmRET6CApc2,
+//     // Replace with your key_secret
+//     key_secret: YAEUthsup8SijNs3iveeVlL1
+// });
+
+// app.use('/api/user', formRoutes); // All routes in formRoutes will be prefixed with /api/user
+
+// Basic route for testing
+// app.get('/', (req, res) => {
+//     res.send('API is running...');
+// });
+
+// // Global error handler (simple example)
+// app.use((err, req, res, next) => {
+//     console.error("Global Error Handler:", err.stack);
+//     // If the error is from Multer (e.g., file too large, wrong type)
+//     if (err instanceof require('multer').MulterError) {
+//         return res.status(400).json({ message: err.message });
+//     } else if (err) {
+//         // For other errors, including the custom one from fileFilter
+//         return res.status(400).json({ message: err.message || 'An unexpected error occurred' });
+//     }
+//     res.status(500).json({ message: 'Something broke!' });
+// });
+
+app.post('/createOrder', (req, res) => {
+    const { amount, currency, receipt, notes } = req.body;
+    razorpayInstance.orders.create({ amount, currency, receipt, notes },
+        (err, order) => {
+            if (!err)
+                res.json(order)
+            else
+                res.send(err);
+        }
+    )
+});
+
+//Inside app.js
+app.post('/verifyOrder',  (req, res)=>{ 
+    
+    // STEP 7: Receive Payment Data
+    const {order_id, payment_id} = req.body;     
+    const razorpay_signature =  req.headers['x-razorpay-signature'];
+
+    // Pass yours key_secret here
+    const key_secret = YAEUthsup8SijNs3iveeVlL1;     
+
+    // STEP 8: Verification & Send Response to User
+    
+    // Creating hmac object 
+    let hmac = crypto.createHmac('sha256', key_secret); 
+
+    // Passing the data to be hashed
+    hmac.update(order_id + "|" + payment_id);
+    
+    // Creating the hmac in the required format
+    const generated_signature = hmac.digest('hex');
+    
+    
+    if(razorpay_signature===generated_signature){
+        res.json({success:true, message:"Payment has been verified"})
+    }
+    else
+    res.json({success:false, message:"Payment verification failed"})
+});
+
+
 
 app.use('/api/admin', AdminRouter)
 app.use('/api/user', UserRouter)

@@ -217,6 +217,54 @@ const uploadDiscoverSweets = multer.diskStorage({
   },
 });
 
+const uploadProfile = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/profile/");
+  },
+  filename: async (req, file, cb) => {
+    try {
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime().toString();
+      const uniqueSuffix = timestamp;
+      const ext = path.extname(file.originalname);
+      cb(null, uniqueSuffix + ext);
+    } catch (err) {
+      console.error("Error generating filename:", err);
+      cb(err);
+    }
+  },
+});
+
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/designs/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        return cb(null, true);
+    }
+    cb('Error: Images Only (jpeg, jpg, png)');
+};
+
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+
+// module.exports = upload;
+
+
 const banner = multer({ storage: uploadBanner });
 const sweets = multer({ storage: uploadSweets });
 const decoration = multer({ storage: uploadDecoration })
@@ -229,5 +277,6 @@ const dryFruit = multer({ storage: uploadDryFruit })
 const bestSeller = multer({ storage: uploadBestSeller })
 const invitationBox = multer({ storage: uploadInvitationBox })
 const discoverSweets = multer({ storage: uploadDiscoverSweets })
+const profile=multer({storage:uploadProfile})
 
-export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets };
+export { banner,upload, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets,profile };
