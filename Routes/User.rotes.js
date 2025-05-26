@@ -8,6 +8,10 @@ import { Protect } from "../Middlewares/authMiddleware.js";
 import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
 const UserRouter = express.Router();
 
+// const {upload }= require('../Middleware/upload.js');
+// import multer from 'multer';
+// import path from 'path';    
+
 UserRouter.get("/profile", Protect, getUserProfile);
 UserRouter.put("/profile", Protect, updateUserProfile);
 

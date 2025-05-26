@@ -6,6 +6,7 @@ import { Payment_History_Model } from "../Models/payment_history.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
 
+
 export const addContactDetails = async (req, res) => {
     try {
         const { firstName, lastName, email, mobile, message } = req.body;

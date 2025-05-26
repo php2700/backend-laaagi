@@ -11,9 +11,19 @@ import { paymentHistory, singleItemPaymentHistory } from './Controllers/UserCont
 const app = express();
 connectDb()
 dotenv.config();
+connectDb()
+// const app = express();
+
+
 app.use(cors());
 
 app.use(express.json())
+app.use(cors());
+// app.use(express.json());
+
+// Routes
+
+// app.use('/uploads', express.static('uploads'));
 app.use('/static', express.static('static'))
 app.use('/uploads', express.static('uploads'))
 app.use('/uploads', express.static('uploads/banner'))

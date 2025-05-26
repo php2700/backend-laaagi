@@ -1,6 +1,9 @@
 import { Admin_Model } from "../Models/Admin.model.js";
 import jwt from 'jsonwebtoken'
+// import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, profile, review, sweets, wedding } from "../Config/imageupload.js";
+
 import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, review, sweets, uploadImg, wedding } from "../Config/imageupload.js";
+
 import { Video } from "../Config/videoupload.js"
 import { Banner_Model } from "../Models/Banner.model.js";
 import bcrypt from 'bcrypt';
@@ -28,8 +31,10 @@ import { OAuth2Client } from 'google-auth-library';
 import { Planning_History_Model } from "../Models/planning_history.model.js";
 import mongoose from "mongoose";
 import { error } from "console";
+
 import Designer_Quote_model from "../Models/Designer-Quote.model.js";
 import { response } from "express";
+
 
 
 
@@ -55,13 +60,13 @@ export const authAdmin = async (req, res) => {
 
     if (!isPasswordMatch) {
         res.status(400).json({
-            message: "Invalid Password",
+            message: "Invalid Password ",
             status: false,
         });
         return;
     }
 
-    const token = jwt.sign({ _id: userdata._id, role: userdata.role }, process.env.JSON_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign({ _id: userdata._id, role: userdata.role }, process.env.JSON_SECRET, { expiresIn: "2m" });
     // res.setHeader(
     //     "Set-Cookie",
     //     cookie.serialize("Admintoken", token, {
@@ -335,7 +340,10 @@ export const updateSweets = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
+        // const { _id, name, amount, category, description } = req.body;
+
         const { _id, name, amount, category, description, isSweet, isWedding } = req.body;
+
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
             return res.status(404).json({ error: "Sweet not found" });
@@ -932,6 +940,25 @@ export const updateReview = async (req, res) => {
         return res.json({ message: "data_updated" });
     });
 }
+export const addInvitationDesign = async (req, res) => {
+    inviation.single("image")(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: "Error uploading image" });
+        }
+
+        const { name, category, description, price } = req?.body;
+        
+        const inviationData = new Invitation_Model({
+            image: "invitation/" + req.file?.filename,
+            name, description, category, price
+        });
+        await inviationData.save();
+        return res.json({ filename: "invitation/" + req.file?.filename });
+    });
+};
+
+
+
 
 
 export const addInvitation = async (req, res) => {
@@ -2366,6 +2393,13 @@ export const userSweetsList = async (req, res) => {
     try {
 
         const query = {};
+        // const { category } = req?.query;
+        // if (category) {
+        //     query.category = category;
+        // }
+// 
+        // const sweetsData = await Sweets_Model.find(query)
+
         const { category, isWedding, isSweet } = req?.query;
         if (category) {
             query.category = category;
@@ -2378,6 +2412,7 @@ export const userSweetsList = async (req, res) => {
         }
 
         const sweetsData = await Sweets_Model.find(query).sort({ updatedAt: -1 });
+
         let i = 0;
         const updatedSweets = sweetsData?.map((sweet) => {
             i++;
@@ -2405,7 +2440,9 @@ export const userSweetsList = async (req, res) => {
 export const userDecorationList = async (req, res) => {
     try {
         const { category } = req.query;
+          console.log("BACKEND: Received category in query:", category);
         const decorationData = await Decoration_Model.find({ category: category }).sort({ createdAt: -1 });
+           console.log("BACKEND: Data fetched from DB for category '" + category + "':", decorationData); 
 
         let i = 0;
         const updatedDecoration = decorationData.map((decoration) => {
@@ -2474,6 +2511,27 @@ export const userInvitationById = async (req, res) => {
 export const userInvitationList = async (req, res) => {
     try {
         console.log(req.query)
+        // const { category, price } = req?.query;
+        // const query = {};
+
+        if (price && price !== 'All') {
+            if (price === '500 & Above') {
+                query.price = { $gte: 500 };
+            } else if (price.includes('-')) {
+                const [priceStart, priceEnd] = price.split('-').map(Number);
+                query.price = {
+                    $gte: priceStart,
+                    $lte: priceEnd,
+                };
+            }
+        }
+        if (category) {
+            query.category = category;
+        }
+
+
+        const invitationData = await Invitation_Model.find(query)
+
         const { category, price, isInvitationBoxes } = req?.query;
         const query = {};
 
@@ -2496,7 +2554,7 @@ export const userInvitationList = async (req, res) => {
         }
 
 
-        const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
+        // const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
         console.log(invitationData, '333')
         let i = 0;
         const updatedInvitationData = invitationData.map((invitation) => {
@@ -2638,6 +2696,7 @@ export const loginByGoogle = async (req, res) => {
         });
 
         const profile = await googleRes.json();
+
         if (!profile) {
             return res.status(400).json({ message: "Invalid Google token" });
         }
@@ -2668,7 +2727,7 @@ export const verifyOtp = async (req, res) => {
         let user = await user_Model.findOne({ otp: otp, _id: _id });
         if (user) {
             user.otp = null;
-            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1 d" });
+            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1d" });
             await user.save();
             return res.json({ token, user });
         }
@@ -2681,7 +2740,9 @@ export const verifyOtp = async (req, res) => {
 
 export const updateAddress = async (req, res) => {
 
+
     uploadImg.single("profile")(req, res, async (err) => {
+
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
@@ -2697,6 +2758,7 @@ export const updateAddress = async (req, res) => {
         if (name)
             isExistUser.name = name || isExistUser?.name
 
+
         if (req?.file) {
             const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null'))
             if (isExistUser?.profile && fs.existsSync(previousImagePath)) {
@@ -2705,9 +2767,12 @@ export const updateAddress = async (req, res) => {
             isExistUser.profile = "profile/" + req.file?.filename
         }
         await isExistUser.save();
+
         return res.json({ message: "data_updated", response: isExistUser });
+
     });
 }
+
 
 export const userDataById = async (req, res) => {
     try {
@@ -2877,3 +2942,4 @@ export const designerQuoteList = async (req, res) => {
         });
     }
 }
+

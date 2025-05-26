@@ -16,6 +16,10 @@ const sweetsSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true
+    }, 
+    description: {
+        type: String,
+        required: true
     },
     isWedding: {
         type: Boolean,
