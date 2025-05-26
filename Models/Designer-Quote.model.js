@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const quoteSchema = new mongoose.Schema({
+const designerQuoteSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true
@@ -9,9 +9,9 @@ const quoteSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    decorationId: {
+    designerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Decoration",
+        ref: "Designer",
         required: true
     },
     email: {
@@ -25,12 +25,8 @@ const quoteSchema = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
+    }
 })
 
-const Quote_model = mongoose.model("quote", quoteSchema)
-export default Quote_model;
+const Designer_Quote_model = mongoose.model("designer-quote", designerQuoteSchema)
+export default Designer_Quote_model;

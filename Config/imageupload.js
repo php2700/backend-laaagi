@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 
-const uploadBanner = multer.diskStorage({
+const bannerFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/banner/");
   },
@@ -19,7 +19,20 @@ const uploadBanner = multer.diskStorage({
   },
 });
 
-const uploadSweets = multer.diskStorage({
+const uploadBanner = multer({
+  storage: bannerFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const SweetFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/sweets/");
   },
@@ -37,7 +50,20 @@ const uploadSweets = multer.diskStorage({
   },
 });
 
-const uploadDecoration = multer.diskStorage({
+const uploadSweets = multer({
+  storage: SweetFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const decorationFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/decoration/");
   },
@@ -55,7 +81,20 @@ const uploadDecoration = multer.diskStorage({
   },
 });
 
-const uploadDesigner = multer.diskStorage({
+const uploadDecoration = multer({
+  storage: decorationFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const DesignerFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/designer/");
   },
@@ -73,10 +112,24 @@ const uploadDesigner = multer.diskStorage({
   },
 });
 
-const uploadAds = multer.diskStorage({
+const uploadDesigner = multer({
+  storage: DesignerFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const adsFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/ads/");
   },
+
   filename: async (req, file, cb) => {
     try {
       const currentDate = new Date();
@@ -91,7 +144,21 @@ const uploadAds = multer.diskStorage({
   },
 });
 
-const uploadReview = multer.diskStorage({
+const uploadAds = multer({
+  storage: adsFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+
+const reviewFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/review/");
   },
@@ -109,7 +176,21 @@ const uploadReview = multer.diskStorage({
   },
 });
 
-const uploadInvitation = multer.diskStorage({
+const uploadReview = multer({
+  storage: reviewFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+
+const invitationFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/invitation/");
   },
@@ -127,7 +208,20 @@ const uploadInvitation = multer.diskStorage({
   },
 });
 
-const uploadWedding = multer.diskStorage({
+const uploadInvitation = multer({
+  storage: invitationFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const weddingFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/wedding/");
   },
@@ -145,7 +239,21 @@ const uploadWedding = multer.diskStorage({
   },
 });
 
-const uploadDryFruit = multer.diskStorage({
+
+const uploadWedding = multer({
+  storage: weddingFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const dryFruitFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/dryFruit/");
   },
@@ -163,7 +271,21 @@ const uploadDryFruit = multer.diskStorage({
   },
 });
 
-const uploadBestSeller = multer.diskStorage({
+const uploadDryFruit = multer({
+  storage: dryFruitFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+
+const bestSellerFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/bestSeller/");
   },
@@ -181,7 +303,20 @@ const uploadBestSeller = multer.diskStorage({
   },
 });
 
-const uploadInvitationBox = multer.diskStorage({
+const uploadBestSeller = multer({
+  storage: bestSellerFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const invitationBoxFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/invitationBox/");
   },
@@ -199,7 +334,20 @@ const uploadInvitationBox = multer.diskStorage({
   },
 });
 
-const uploadDiscoverSweets = multer.diskStorage({
+const uploadInvitationBox = multer({
+  storage: invitationBoxFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const discoverSweetsFile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/discoverSweets/");
   },
@@ -217,7 +365,20 @@ const uploadDiscoverSweets = multer.diskStorage({
   },
 });
 
-const uploadProfile = multer.diskStorage({
+const uploadDiscoverSweets = multer({
+  storage: discoverSweetsFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
+const profile = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/profile/");
   },
@@ -235,48 +396,44 @@ const uploadProfile = multer.diskStorage({
   },
 });
 
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/designs/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+const uploadProfile = multer({
+  storage: profile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
     }
+    cb(null, true);
+  }
 });
 
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-        return cb(null, true);
-    }
-    cb('Error: Images Only (jpeg, jpg, png)');
-};
+// const banner = multer({ storage: uploadBanner });
+const banner = uploadBanner
+const sweets = uploadSweets;
+// const sweets = multer({ storage: uploadSweets });
+// const decoration = multer({ storage: uploadDecoration })
+const decoration = uploadDecoration
+// const designer = multer({ storage: uploadDesigner })
+const designer = uploadDesigner
+// const ads = multer({ storage: uploadAds })
+const ads = uploadAds
+// const review = multer({ storage: uploadReview });
+const review = uploadReview
+// const inviation = multer({ storage: uploadInvitation })
+const inviation = uploadInvitation
+// const wedding = multer({ storage: uploadWedding })
+const wedding = uploadWedding
+// const dryFruit = multer({ storage: uploadDryFruit })
+const dryFruit = uploadDryFruit
+// const bestSeller = multer({ storage: uploadBestSeller })
+const bestSeller = uploadBestSeller
+// const invitationBox = multer({ storage: uploadInvitationBox })
+const invitationBox = uploadInvitationBox
+// const discoverSweets = multer({ storage: uploadDiscoverSweets })
+const discoverSweets = uploadDiscoverSweets
+// const uploadImg = multer({ storage: uploadProfile })
+const uploadImg = uploadProfile
 
-const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
-});
-
-// module.exports = upload;
-
-
-const banner = multer({ storage: uploadBanner });
-const sweets = multer({ storage: uploadSweets });
-const decoration = multer({ storage: uploadDecoration })
-const designer = multer({ storage: uploadDesigner })
-const ads = multer({ storage: uploadAds })
-const review = multer({ storage: uploadReview });
-const inviation = multer({ storage: uploadInvitation })
-const wedding = multer({ storage: uploadWedding })
-const dryFruit = multer({ storage: uploadDryFruit })
-const bestSeller = multer({ storage: uploadBestSeller })
-const invitationBox = multer({ storage: uploadInvitationBox })
-const discoverSweets = multer({ storage: uploadDiscoverSweets })
-const profile=multer({storage:uploadProfile})
-
-export { banner,upload, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets,profile };
+export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets, uploadImg };

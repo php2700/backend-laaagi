@@ -1,15 +1,19 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest , guestList } from "../Controllers/UserController.js";
-import { addContactUsDetail,addInvitationDesign, addInvitationBox, AddQuote, bannerList , createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp, } from "../Controllers/Admin.controller.js";
-import { Authentication } from "../Middlewares/Authentication.middleware.js";
-import { Authorization } from "../Middlewares/Authorization.middleware.js";
-import { Protect } from "../Middlewares/authMiddleware.js";
-import { upload } from "../Config/imageupload.js";
+// import {  createCustomizationRequest, deleteGuest , guestList } from "../Controllers/UserController.js";
+// import { addContactUsDetail,addInvitationDesign, addInvitationBox, AddQuote, bannerList , createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp, } from "../Controllers/Admin.controller.js";
+// import { Authentication } from "../Middlewares/Authentication.middleware.js";
+// import { Authorization } from "../Middlewares/Authorization.middleware.js";
+// import { Protect } from "../Middlewares/authMiddleware.js";
 
 // import  {upload }  from '../Middleware/upload.js';
 // import upload from './upload.js';
 
+import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, guestList, updateAddressPerson } from "../Controllers/UserController.js";
+import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, createUser, loginByGoogle, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { Authentication } from "../Middlewares/Authentication.middleware.js";
+import { Authorization } from "../Middlewares/Authorization.middleware.js";
+import { Protect } from "../Middlewares/authMiddleware.js";
 import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
 const UserRouter = express.Router();
 
@@ -68,6 +72,9 @@ UserRouter.post("/contact-us-detail", addContactUsDetail);
 /*----------------quote ----------------*/
 UserRouter.post('/quote', AddQuote);
 
+/*----------------add-designerQuote ----------------*/
+UserRouter.post('/designer-quote', AddDesignerQuote);
+
 /*--------------user----------*/
 UserRouter.post('/register', createUser)
 UserRouter.post('/google-login', loginByGoogle)
@@ -84,20 +91,15 @@ UserRouter.post("/add-planning-history", Authentication, Authorization(['user'])
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
 UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest);
+UserRouter.patch("/edit-guest", Authentication, Authorization(['user']), editGuest);
+UserRouter.patch("/update-address-person", updateAddressPerson)
+
 
 UserRouter.post('/customization-requests', createCustomizationRequest);
 
-UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest)
-UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList)
-UserRouter.delete("/delete-guest/:id", Authentication, Authorization(['user']), deleteGuest)
-// UserRouter.patch('/edit-guest',Authentication,Authorization(['user']),editGuest)
 
-/*------------------Upload design ----------------*/
-// UserRouter.post("/add_invitation", addInvitation)
-
-UserRouter.post('/add_invitation', addInvitationDesign);
-
-
+/*------------------------payment history --------------------------*/
+UserRouter.get("/payment-history/:userId", Authentication, Authorization(['user']), getPaymentHistory);
 
 
 

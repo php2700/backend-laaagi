@@ -9,7 +9,9 @@ const aboutSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+}, {
+    timestamps: true
 });
 
-const About_model=mongoose.model("about",aboutSchema);
-export { About_model}
+const About_model = mongoose.model("about", aboutSchema);
+export { About_model }

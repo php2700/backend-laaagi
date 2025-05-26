@@ -21,17 +21,26 @@ const sweetsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isWedding: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    isSweet: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    description: {
+        type: String,
+        required: true
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
-    layoutColumns: { 
-        type: Number,    
-        required: false,  
-        default: 1,      
-        min: 1,           
-        max: 2          
-    },
+}, {
+    timestamps: true
 });
 
 const Sweets_Model = mongoose.model("Sweets", sweetsSchema);

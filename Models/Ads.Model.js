@@ -9,6 +9,8 @@ const adsSchema=new mongoose.Schema({
         type: String,
         required: true,
     }
+}, {
+    timestamps: true
 });
 
 const Ads_Model = mongoose.model("Ads", adsSchema);
