@@ -6,7 +6,7 @@ import AdminRouter from './Routes/Admin.routes.js';
 import UserRouter from './Routes/User.rotes.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto'
-import { paymentHistory } from './Controllers/UserController.js';
+import { paymentHistory, singleItemPaymentHistory } from './Controllers/UserController.js';
 
 const app = express();
 connectDb()
@@ -49,22 +49,22 @@ app.post('/createOrder', (req, res) => {
 });
 
 app.post('/verifyOrder', async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, amount } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     const key_secret = process.env.RAZORPAY_SECRETKEY
     let hmac = crypto.createHmac('sha256', key_secret);
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generated_signature = hmac.digest('hex');
 
     if (razorpay_signature === generated_signature) {
-        return await paymentHistory(req, res)
+        if (!req.body?.rate)
+            return await paymentHistory(req, res)
+        return await singleItemPaymentHistory(req, res);
     }
     else {
         return res.json({ success: false, message: "Payment verification failed" })
 
     }
 });
-
-
 
 app.use('/api/admin', AdminRouter)
 app.use('/api/user', UserRouter)

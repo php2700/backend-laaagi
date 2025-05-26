@@ -1,6 +1,7 @@
 import Contact_model from "../Models/Contact_us.model.js";
 import Customization_model from "../Models/Customization.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
+import { Sweet_History_Model } from "../Models/item-history.model.js";
 import { Payment_History_Model } from "../Models/payment_history.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
@@ -45,6 +46,17 @@ export const AddGuest = async (req, res) => {
         await guestData.save()
         return res.status(200).json({ guestData: guestData })
 
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
+
+export const guestData = async (req, res) => {
+    try {
+        const { id } = req?.params;
+
+        const guestData = await Guest_Model.findOne({ _id: id })
+        return res.status(200).json({ guest: guestData })
     } catch (error) {
         return res.status(400).json({ message: error?.message })
     }
@@ -299,6 +311,70 @@ export const paymentHistory = async (req, res) => {
     }
 };
 
+export const singleItemPaymentHistory = async (req, res) => {
+    try {
+        console.log("Received payment request:", req.body);
+
+        const { userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name } = req?.body;
+
+        if (!description || !rate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Weight, amount, and userId are required.',
+            });
+        }
+
+        const newPayment = new Sweet_History_Model({
+            userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name
+        });
+
+        console.log(newPayment, "newPaymet")
+
+        const savedPayment = await newPayment.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Payment history saved successfully!',
+            data: savedPayment,
+        });
+
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                success: false,
+                message: `Validation Failed: ${messages.join(', ')}`
+            });
+        }
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to save payment history due to a server error.',
+            error: error.message
+        });
+    }
+};
+
+export const getPaymentView = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const paymentHistoryDocs = await Payment_History_Model.find({ _id: id });
+        return res.status(200).json({ paymentHistory: paymentHistoryDocs });
+    } catch (error) {
+        console.error("Error fetching payment history:", error);
+        return res.status(400).json({ message: error?.message || "Something went wrong" });
+    }
+};
+
+export const getSweetHistory = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const sweetHistoryData = await Sweet_History_Model.findOne({ _id: id });
+        return res.status(200).json({ sweetHistory: sweetHistoryData });
+    } catch (error) {
+        console.error("Error fetching payment history:", error);
+        return res.status(400).json({ message: error?.message || "Something went wrong" });
+    }
+};
+
 
 
 export const getPaymentHistory = async (req, res) => {
@@ -321,8 +397,8 @@ export const getPaymentHistory = async (req, res) => {
 
         filterData.userId = userId;
 
-        const paymentHistoryDocs = await Payment_History_Model.find(filterData);
-        const paymentHistory = await Promise.all(paymentHistoryDocs?.map(async (paymentDoc) => {
+        const paymentHistoryDocs = await Payment_History_Model.find(filterData).sort({ createdAt: -1 })
+        const invitationHostory = await Promise.all(paymentHistoryDocs?.map(async (paymentDoc) => {
             const payment = paymentDoc.toObject();
             const updatedGuests = await Promise.all(payment.guest?.map(async (guest) => {
                 let guestData = await Guest_Model.findOne({ _id: guest?.guestId }).lean();
@@ -339,6 +415,14 @@ export const getPaymentHistory = async (req, res) => {
             return payment;
         }));
 
+        const itemHistoryData = await Sweet_History_Model.find(filterData).sort({ createdAt: -1 });
+
+        const itemHistory = itemHistoryData.map(transaction => {
+            return transaction.toObject();
+        });
+        const paymentHistory = [...invitationHostory, ...itemHistory].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
 
 
         return res.status(200).json({ paymentHistory });

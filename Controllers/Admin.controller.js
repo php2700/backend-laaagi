@@ -990,13 +990,8 @@ export const updateInvitation = async (req, res) => {
             updatedData.isInvitationBoxes = (isInvitationBoxes == 'true') ? true : false
         }
 
-        console.log(updatedData, '222')
 
         if (req?.file) {
-            const previousImagePath = path.join("uploads", existInvitation?.image);
-            if (existInvitation?.image && fs.existsSync(previousImagePath)) {
-                fs.unlinkSync(previousImagePath);
-            }
             updatedData.image = "invitation/" + req.file?.filename
         }
         await Invitation_Model.findByIdAndUpdate(_id,
@@ -2165,6 +2160,19 @@ export const userWeddingList = async (req, res) => {
     }
 }
 
+export const dryFruitById = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const isExistDryFruit = await Dry_fruit_Model.findOne({ _id: id });
+        console.log(isExistDryFruit, 'aaaaaaa')
+        if (isExistDryFruit) {
+            return res.status(200).json({ dryFruitData: isExistDryFruit });
+        }
+        return res.status(400).json({ message: 'dry_fruit_data_not_found' })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
 
 
 export const userDryFruits = async (req, res) => {
@@ -2340,6 +2348,20 @@ export const userReviewList = async (req, res) => {
         });
     }
 }
+
+export const sweetById = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const isExistSweet = await Sweets_Model.findOne({ _id: id });
+        if (isExistSweet) {
+            return res.status(200).json({ sweetData: isExistSweet });
+        }
+        return res.status(400).json({ message: 'sweet_data_not_found' })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
+
 export const userSweetsList = async (req, res) => {
     try {
 
@@ -2435,6 +2457,19 @@ export const userDesigner = async (req, res) => {
     }
 }
 
+
+export const userInvitationById = async (req, res) => {
+    try {
+        const { id } = req?.params;
+        const isExistInvitation = await Invitation_Model.findOne({ _id: id });
+        if (isExistInvitation) {
+            return res.status(200).json({ invitation: isExistInvitation });
+        }
+        return res.status(400).json({ message: 'invitation_data_not_found' })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
 
 export const userInvitationList = async (req, res) => {
     try {
@@ -2650,18 +2685,17 @@ export const updateAddress = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, address, name } = req?.body;
+        const { _id, address, name, addressBy } = req?.body;
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
         }
-        if (address) {
-            isExistUser.address = address;
-        }
-        if (name) {
-            isExistUser.name = name
-        }
-
+        if (address)
+            isExistUser.address = address || isExistUser?.address;
+        if (addressBy)
+            isExistUser.addressBy = addressBy || isExistUser?.addressBy;
+        if (name)
+            isExistUser.name = name || isExistUser?.name
 
         if (req?.file) {
             const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null'))
