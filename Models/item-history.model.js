@@ -36,6 +36,14 @@ const itemHistorySchema = new mongoose.Schema({
     quantity: {
         type: Number,
         required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    pincode: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true

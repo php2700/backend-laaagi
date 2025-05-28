@@ -1,6 +1,7 @@
 import express from "express";
 import { aboutList, addAbout, addAds, addBestSeller, addDecoration, addDesigner, addDiscoverSweets, addDryFruit, 
-    addInvitation,designerQuoteList,addInvitationDesign, addInvitationBox, addPlanning, addReview, addSweets, addWedding, adsList, authAdmin, bestSellerList, contactUsList, customization, customizationList, dashboardData, decorationList, DeleteBanner, deleteBestSeller, DeleteDecoration, deleteDesigner, deleteDryFruit, deleteInvitation, deletePlanning, deleteReview, DeleteSweet, deleteWedding, discoverSweetsList, dryFruitList, getDesignerList, ImageList, invitationBoxList, invitationList, planningList, quoteList, reviewList, sweetsList, updateABout, updateAds, updateBanner, updateDiscoverSweets, updateDryFruit, updateInvitation, updateInvitationBox, updatePlanning, updateReview, updateSweets, updateUser, updateWedding, uploadImage, userList, weddingList } from "../Controllers/Admin.controller.js";
+    addInvitation,designerQuoteList,addInvitationDesign, addInvitationBox, addPlanning, addReview, addSweets, addWedding, adsList, authAdmin, bestSellerList, contactUsList, customization, customizationList, dashboardData, decorationList, DeleteBanner, deleteBestSeller, DeleteDecoration, deleteDesigner, deleteDryFruit, deleteInvitation, deletePlanning, deleteReview, DeleteSweet, deleteWedding, discoverSweetsList, dryFruitList, getDesignerList, ImageList, invitationBoxList, invitationList, planningList, quoteList, reviewList, sweetsList, updateABout, updateAds, updateBanner, updateDiscoverSweets, updateDryFruit, updateInvitation, updateInvitationBox, updatePlanning, updateReview, updateSweets, updateUser, updateWedding, uploadImage, userList, weddingList, 
+    getInvitationQuote} from "../Controllers/Admin.controller.js";
 // import {   authAdmin, bestSellerList, contactUsList, customization, customizationList, dashboardData, decorationList, DeleteBanner, deleteBestSeller, DeleteDecoration, deleteDesigner, deleteDryFruit, deleteInvitation, deletePlanning, deleteReview, DeleteSweet, deleteWedding, designerQuoteList, discoverSweetsList, dryFruitList, getDesignerList, ImageList, invitationBoxList, invitationList, planningList, quoteList, reviewList, sweetsList, updateABout, updateAds, updateBanner, updateDiscoverSweets, updateDryFruit, updateInvitation, updateInvitationBox, updatePlanning, updateReview, updateSweets, updateUser, updateWedding, uploadImage, userList, weddingList } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -62,6 +63,10 @@ AdminRouter.get("/invitation_list", Authentication, Authorization(["Admin"]), in
 
 /* ------------------------- contact details -----------------------*/
 AdminRouter.get("/contact_us", Authentication, Authorization(["Admin"]), contactUsList)
+
+/*--------------------invitaation-quote --------*/
+AdminRouter.get("/invitation-quote-list", Authentication, Authorization(["Admin"]), getInvitationQuote);
+
 
 /*------------------------------ wedding -----------------*/
 AdminRouter.post("/add_wedding", Authentication, Authorization(["Admin"]), addWedding)
