@@ -409,6 +409,38 @@ const uploadProfile = multer({
   }
 });
 
+
+const uploadDesignFile = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/invitationQuote/");
+  },
+  filename: async (req, file, cb) => {
+    try {
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime().toString();
+      const uniqueSuffix = timestamp;
+      const ext = path.extname(file.originalname);
+      cb(null, uniqueSuffix + ext);
+    } catch (err) {
+      console.error("Error generating filename:", err);
+      cb(err);
+    }
+  },
+});
+
+const uploadDesignQuote = multer({
+  storage: uploadDesignFile,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  }
+});
+
 // const banner = multer({ storage: uploadBanner });
 const banner = uploadBanner
 const sweets = uploadSweets;
@@ -435,5 +467,8 @@ const invitationBox = uploadInvitationBox
 const discoverSweets = uploadDiscoverSweets
 // const uploadImg = multer({ storage: uploadProfile })
 const uploadImg = uploadProfile
+const uploadQuote = uploadDesignQuote
 
-export { banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets, uploadImg };
+
+
+export { uploadQuote, banner, sweets, decoration, designer, ads, review, inviation, wedding, dryFruit, bestSeller, invitationBox, discoverSweets, uploadImg };

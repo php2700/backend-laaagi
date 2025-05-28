@@ -35,7 +35,11 @@ const paymentHistorySchema = new mongoose.Schema({
             address: {
                 type: String,
                 required: true
-            }
+            },
+            pincode: {
+                type: String,
+                required: true
+            },
         }
     ],
     boxName: {
@@ -65,6 +69,10 @@ const paymentHistorySchema = new mongoose.Schema({
                 required: true
             },
             name: {
+                type: String,
+                required: true
+            },
+            img: {
                 type: String,
                 required: true
             }

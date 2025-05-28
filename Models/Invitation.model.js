@@ -26,6 +26,10 @@ const invitationSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    isBestSeller: {
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now,

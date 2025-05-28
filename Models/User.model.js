@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     },
     addressBy: {
         type: String,
-        required: true
+        required: false
     },
     role: {
         type: String,
@@ -41,11 +41,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    pincode: {
+        type: String,
+        required: false
+    },
     otp: {
         type: String,
         required: false
-    }
-});
+    },
+}, {
+    timestamps: true
+}
+);
 
 const user_Model = mongoose.model("user", userSchema);
 export { user_Model }
