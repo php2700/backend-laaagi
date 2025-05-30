@@ -44,44 +44,61 @@ const baseURL = process.env.BASE_URL;
 
 
 
+
+
 export const authAdmin = async (req, res) => {
+  try {
     const { email, password } = req.body;
-    // const hshpa=await bcrypt.hash(password, 10);
-    // console.log(hshpa,"1111111111")
+
+    // 1. Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and Password are required.",
+        status: false,
+      });
+    }
+
+    // 2. Check if admin exists
     const userdata = await Admin_Model.findOne({ email: email });
     if (!userdata) {
-        return res.status(400).json({
-            message: "Admin Not Found",
-            status: false,
-        });
+      return res.status(401).json({
+        message: "Admin Not Found",
+        status: false,
+      });
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, userdata?.password);
-
+    // 3. Check password
+    const isPasswordMatch = await bcrypt.compare(password, userdata.password);
     if (!isPasswordMatch) {
-        res.status(400).json({
-            message: "Invalid Password ",
-            status: false,
-        });
-        return;
+      return res.status(401).json({
+        message: "Invalid Password",
+        status: false,
+      });
     }
 
-    const token = jwt.sign({ _id: userdata._id, role: userdata.role }, process.env.JSON_SECRET, { expiresIn: "2m" });
-    // res.setHeader(
-    //     "Set-Cookie",
-    //     cookie.serialize("Admintoken", token, {
-    //         httpOnly: false,
-    //         expires: new Date(Date.now() + 60 * 60 * 24 * 10 * 1000),
-    //         path: "/",
-    //     })
-    // );
-    return res.json({
-        userdata,
-        token,
-        status: true,
-    });
+    // 4. Generate JWT token
+    const token = jwt.sign(
+      { _id: userdata._id, role: userdata.role },
+      process.env.JSON_SECRET,
+      { expiresIn: "1m" }
+    );
 
-}
+    // 5. Respond with token & user info
+    return res.status(200).json({
+      message: "Login successful",
+      userdata,
+      token,
+      status: true,
+    });
+  } catch (error) {
+    console.error("Admin Login Error:", error);
+    return res.status(500).json({
+      message: "Something went wrong during login",
+      error: error.message,
+      status: false,
+    });
+  }
+};
 
 export const uploadImage = async (req, res) => {
     banner.single("banner")(req, res, async (err) => {
@@ -1894,7 +1911,7 @@ export const userList = async (req, res) => {
             };
         };
 
-        const userData = await user_Model.find(filter).skip((page - 1) * perPage).limit(perPage);
+        const userData = await user_Model.find(filter).sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await user_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -2510,28 +2527,7 @@ export const userInvitationById = async (req, res) => {
 
 export const userInvitationList = async (req, res) => {
     try {
-        console.log(req.query)
-        // const { category, price } = req?.query;
-        // const query = {};
-
-        if (price && price !== 'All') {
-            if (price === '500 & Above') {
-                query.price = { $gte: 500 };
-            } else if (price.includes('-')) {
-                const [priceStart, priceEnd] = price.split('-').map(Number);
-                query.price = {
-                    $gte: priceStart,
-                    $lte: priceEnd,
-                };
-            }
-        }
-        if (category) {
-            query.category = category;
-        }
-
-
-        const invitationData = await Invitation_Model.find(query)
-
+     
         const { category, price, isInvitationBoxes } = req?.query;
         const query = {};
 
@@ -2554,7 +2550,7 @@ export const userInvitationList = async (req, res) => {
         }
 
 
-        // const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
+        const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
         console.log(invitationData, '333')
         let i = 0;
         const updatedInvitationData = invitationData.map((invitation) => {

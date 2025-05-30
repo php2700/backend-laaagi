@@ -1,7 +1,7 @@
 // 
 import express from "express";
 import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactUsDetail, AddDesignerQuote, addInvitationBox, AddQuote, bannerList, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 import { Protect } from "../Middlewares/authMiddleware.js";
@@ -57,6 +57,8 @@ UserRouter.get("/decoration_list", userDecorationList);
 UserRouter.get('/designers_list', userDesigner);
 
 /*---------------invitations ----------*/
+
+UserRouter.post("/add_invitation", addInvitationBox);
 UserRouter.get("/invitation/:id", userInvitationById);
 UserRouter.get("/invitation_list", userInvitationList);
 
