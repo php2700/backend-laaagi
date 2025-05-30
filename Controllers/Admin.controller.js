@@ -2,7 +2,7 @@ import { Admin_Model } from "../Models/Admin.model.js";
 import jwt from 'jsonwebtoken'
 // import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, profile, review, sweets, wedding } from "../Config/imageupload.js";
 
-import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, review, sweets, uploadImg, wedding } from "../Config/imageupload.js";
+import { ads, banner, bestSeller, decoration, designer, discoverSweets, dryFruit, inviation, invitationBox, review, sweets, uploadImg, uploadQuote, wedding } from "../Config/imageupload.js";
 
 import { Video } from "../Config/videoupload.js"
 import { Banner_Model } from "../Models/Banner.model.js";
@@ -34,6 +34,9 @@ import { error } from "console";
 
 import Designer_Quote_model from "../Models/Designer-Quote.model.js";
 import { response } from "express";
+import { Sweet_History_Model } from "../Models/item-history.model.js";
+import { singleItemPaymentHistory } from "./UserController.js";
+import { upload_design_quote_model } from "../Models/upload_design_quote.model.js";
 
 
 
@@ -80,7 +83,7 @@ export const authAdmin = async (req, res) => {
     const token = jwt.sign(
       { _id: userdata._id, role: userdata.role },
       process.env.JSON_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "7d" }
     );
 
     // 5. Respond with token & user info
@@ -276,7 +279,7 @@ export const sweetsList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const sweetsData = await Sweets_Model.find().sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const sweetsData = await Sweets_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Sweets_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -359,7 +362,7 @@ export const updateSweets = async (req, res) => {
         }
         // const { _id, name, amount, category, description } = req.body;
 
-        const { _id, name, amount, category, description, isSweet, isWedding } = req.body;
+        const { _id, name, amount, category, description, isSweet, isWedding, isBestSeller } = req.body;
 
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
@@ -378,12 +381,11 @@ export const updateSweets = async (req, res) => {
         if (isWedding) {
             updatedData.isWedding = (isWedding == 'true') ? true : false
         }
+        if (isBestSeller) {
+            updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
+        }
 
         if (req?.file) {
-            const previousImagePath = path.join("uploads", existingSweet?.image);
-            if (existingSweet?.image && fs.existsSync(previousImagePath)) {
-                fs.unlinkSync(previousImagePath);
-            }
             updatedData.image = "sweets/" + req.file?.filename
         }
         await Sweets_Model.findByIdAndUpdate(_id,
@@ -964,7 +966,7 @@ export const addInvitationDesign = async (req, res) => {
         }
 
         const { name, category, description, price } = req?.body;
-        
+
         const inviationData = new Invitation_Model({
             image: "invitation/" + req.file?.filename,
             name, description, category, price
@@ -1016,7 +1018,7 @@ export const updateInvitation = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, category, description, price, isInvitationBoxes } = req.body;
+        const { _id, name, category, description, price, isInvitationBoxes, isBestSeller } = req.body;
 
         const existInvitation = await Invitation_Model.findById(_id);
         if (!existInvitation) {
@@ -1029,9 +1031,11 @@ export const updateInvitation = async (req, res) => {
             description,
             price
         };
-
         if (isInvitationBoxes) {
             updatedData.isInvitationBoxes = (isInvitationBoxes == 'true') ? true : false
+        }
+        if (isBestSeller) {
+            updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
         }
 
 
@@ -1051,7 +1055,7 @@ export const invitationList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const invitationData = await Invitation_Model.find().sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const invitationData = await Invitation_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Invitation_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -1342,7 +1346,7 @@ export const updateDryFruit = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, amount, description } = req.body;
+        const { _id, name, amount, description, isBestSeller } = req.body;
         if (!name) {
             return res.status(400).json({ error: " name are required." });
         }
@@ -1351,6 +1355,12 @@ export const updateDryFruit = async (req, res) => {
             amount,
             description
         };
+
+        if (isBestSeller) {
+            updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
+        }
+
+
         if (req?.file) {
             updatedData.image = "dryFruit/" + req.file?.filename
         }
@@ -1366,7 +1376,7 @@ export const dryFruitList = async (req, res) => {
         const { page = 1 } = req.query;
         const perPage = 10;
 
-        const dryFruitData = await Dry_fruit_Model.find().skip((page - 1) * perPage).limit(perPage);
+        const dryFruitData = await Dry_fruit_Model.find().sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await Dry_fruit_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -1911,7 +1921,7 @@ export const userList = async (req, res) => {
             };
         };
 
-        const userData = await user_Model.find(filter).sort({ updatedAt: -1 }).skip((page - 1) * perPage).limit(perPage);
+        const userData = await user_Model.find(filter).sort({createdAt:-1}).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await user_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -2414,7 +2424,7 @@ export const userSweetsList = async (req, res) => {
         // if (category) {
         //     query.category = category;
         // }
-// 
+        // 
         // const sweetsData = await Sweets_Model.find(query)
 
         const { category, isWedding, isSweet } = req?.query;
@@ -2457,9 +2467,9 @@ export const userSweetsList = async (req, res) => {
 export const userDecorationList = async (req, res) => {
     try {
         const { category } = req.query;
-          console.log("BACKEND: Received category in query:", category);
+        console.log("BACKEND: Received category in query:", category);
         const decorationData = await Decoration_Model.find({ category: category }).sort({ createdAt: -1 });
-           console.log("BACKEND: Data fetched from DB for category '" + category + "':", decorationData); 
+        console.log("BACKEND: Data fetched from DB for category '" + category + "':", decorationData);
 
         let i = 0;
         const updatedDecoration = decorationData.map((decoration) => {
@@ -2511,6 +2521,90 @@ export const userDesigner = async (req, res) => {
     }
 }
 
+export const uploadDesignQuote = async (req, res) => {
+    uploadQuote.single("image")(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: "Error uploading image" });
+        }
+
+        const { name, category, description, price } = req?.body;
+        const uploadDesignQuote = new upload_design_quote_model({
+            image: "invitationQuote/" + req.file?.filename,
+            name, description, category, price
+        });
+        await uploadDesignQuote.save();
+        return res.json({ filename: "invitationQuote/" + req.file?.filename });
+    });
+}
+
+
+export const getInvitationQuote = async (req, res) => {
+    try {
+        const { search, page = 1 } = req.query;
+        const perPage = 10;
+
+        const inviationQuoteData = await upload_design_quote_model.find().sort({createdAt:-1})
+            .skip((page - 1) * perPage)
+            .limit(perPage);
+
+        const totalCount = await upload_design_quote_model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const updatedInvitationQuoteData = inviationQuoteData?.map((quote) => {
+            i++;
+            return {
+                ...quote.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: updatedInvitationQuoteData,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + updatedInvitationQuoteData?.length,
+            total: totalCount,
+        };
+
+        return res.status(200).json({
+            quoteData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching invitation quote:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching quoteData",
+            error: error.message
+        });
+    }
+}
+
 
 export const userInvitationById = async (req, res) => {
     try {
@@ -2527,7 +2621,6 @@ export const userInvitationById = async (req, res) => {
 
 export const userInvitationList = async (req, res) => {
     try {
-     
         const { category, price, isInvitationBoxes } = req?.query;
         const query = {};
 
@@ -2643,6 +2736,30 @@ export const AddDesignerQuote = async (req, res) => {
     }
 }
 
+export const bestSellerData = async (req, res) => {
+    try {
+        const { bestSeller } = req?.query;
+        const sweetData = await Sweets_Model.find({ isBestSeller: bestSeller });
+        const dryFruitData = await Dry_fruit_Model.find({ isBestSeller: bestSeller });
+        const invitationData = await Invitation_Model.find({ isBestSeller: bestSeller });
+        const bestSellerData = [...sweetData, ...dryFruitData, ...invitationData]
+
+        return res.status(200).json({
+            message: 'get_Successfully_Data',
+            bestSeller: bestSellerData
+        });
+    }
+    catch (error) {
+        console.error("Error fetching :", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching contact us data",
+            error: error.message
+        });
+    }
+}
+
+
 
 export const createUser = async (req, res) => {
     try {
@@ -2742,7 +2859,7 @@ export const updateAddress = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, address, name, addressBy } = req?.body;
+        const { _id, address, name, addressBy, pincode } = req?.body;
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
@@ -2753,7 +2870,9 @@ export const updateAddress = async (req, res) => {
             isExistUser.addressBy = addressBy || isExistUser?.addressBy;
         if (name)
             isExistUser.name = name || isExistUser?.name
-
+        if (pincode) {
+            isExistUser.pincode = pincode || isExistUser?.pincode
+        }
 
         if (req?.file) {
             const previousImagePath = path.join("uploads", (isExistUser?.profile ?? 'null'))

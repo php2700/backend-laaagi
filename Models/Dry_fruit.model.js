@@ -21,6 +21,10 @@ const dryFruitSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    isBestSeller: {
+        type: Boolean,
+        default: false
+    },
 
 }, {
     timestamps: true

@@ -1,11 +1,12 @@
 // 
 import express from "express";
 import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddDesignerQuote, addInvitationBox, AddQuote, bannerList, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactUsDetail, AddDesignerQuote, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 import { Protect } from "../Middlewares/authMiddleware.js";
 import { getUserProfile, updateUserProfile } from "../Controllers/UserProfile.controller.js";
+import { bestSeller } from "../Config/imageupload.js";
 const UserRouter = express.Router();
 
 // const {upload }= require('../Middleware/upload.js');
@@ -58,9 +59,11 @@ UserRouter.get('/designers_list', userDesigner);
 
 /*---------------invitations ----------*/
 
-UserRouter.post("/add_invitation", addInvitationBox);
 UserRouter.get("/invitation/:id", userInvitationById);
 UserRouter.get("/invitation_list", userInvitationList);
+
+/*----------------upload-design-quote --------*/
+UserRouter.post("/upload-design-quote", uploadDesignQuote);
 
 /*---------------contact-us---------------*/
 UserRouter.post("/contact-us-detail", addContactUsDetail);
@@ -70,6 +73,9 @@ UserRouter.post('/quote', AddQuote);
 
 /*----------------add-designerQuote ----------------*/
 UserRouter.post('/designer-quote', AddDesignerQuote);
+
+/*----------------best-seller ----------------*/
+UserRouter.get('/best-seller', bestSellerData);
 
 /*--------------user----------*/
 UserRouter.post('/register', createUser)
