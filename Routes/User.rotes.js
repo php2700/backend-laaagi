@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
+import { addContactDetails, AddGuest, addRecentView, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -105,7 +105,9 @@ UserRouter.get("/sweet-history/:id", Authentication, Authorization(['user']), ge
 UserRouter.get("/payment-data/:id", Authentication, Authorization(['user']), getPaymentView);
 UserRouter.get("/payment-history/:userId", Authentication, Authorization(['user']), getPaymentHistory);
 
-
+/*-----------------------------------------recent -view --------------------*/
+UserRouter.get("/recent-view/:userId", Authentication, Authorization(['user']), getRecentView);
+UserRouter.post('/recent-view', Authentication, Authorization(['user']), addRecentView);
 
 
 export default UserRouter;

@@ -1900,11 +1900,12 @@ export const userList = async (req, res) => {
                 $or: [
                     { name: { $regex: search, $options: "i" } },
                     { mobile: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
                 ],
             };
         };
 
-        const userData = await user_Model.find(filter).sort({createdAt:-1}).skip((page - 1) * perPage).limit(perPage);
+        const userData = await user_Model.find(filter).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage);
         const totalCount = await user_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
@@ -2067,6 +2068,8 @@ export const quoteList = async (req, res) => {
                 $or: [
                     { firstName: { $regex: search, $options: "i" } },
                     { lastName: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
+                    { mobile: { $regex: search, $options: "i" } },
                 ],
             };
         };
@@ -2525,8 +2528,18 @@ export const getInvitationQuote = async (req, res) => {
     try {
         const { search, page = 1 } = req.query;
         const perPage = 10;
+        let filter = {};
+        if (search) {
+            filter = {
+                $or: [
+                    { name: { $regex: search, $options: "i" } },
+                    { category: { $regex: search, $options: "i" } },
+                ],
+            };
+        };
 
-        const inviationQuoteData = await upload_design_quote_model.find().sort({createdAt:-1})
+
+        const inviationQuoteData = await upload_design_quote_model.find(filter).sort({ createdAt: -1 })
             .skip((page - 1) * perPage)
             .limit(perPage);
 
@@ -2974,6 +2987,8 @@ export const designerQuoteList = async (req, res) => {
                 $or: [
                     { firstName: { $regex: search, $options: "i" } },
                     { lastName: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
+                    { mobile: { $regex: search, $options: "i" } },
                 ],
             };
         };
