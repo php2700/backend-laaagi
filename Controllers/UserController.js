@@ -3,6 +3,7 @@ import Customization_model from "../Models/Customization.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
 import { Sweet_History_Model } from "../Models/item-history.model.js";
 import { Payment_History_Model } from "../Models/payment_history.js";
+import Recent_View_model from "../Models/recent-view.Model.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
 
@@ -390,9 +391,9 @@ export const getPaymentHistory = async (req, res) => {
         let filterData = {};
         if (q) {
             filterData.$or = [
-                { name: { $regex: q, $options: 'i' } },
-                { address: { $regex: q, $options: 'i' } },
-                { category: { $regex: q, $options: 'i' } }
+                { razorpay_order_id: { $regex: q, $options: 'i' } },
+                { invitationName: { $regex: q, $options: 'i' } },
+                { sweet: { $regex: q, $options: 'i' } }
             ];
         }
 
@@ -430,5 +431,54 @@ export const getPaymentHistory = async (req, res) => {
     } catch (error) {
         console.error("Error fetching payment history:", error);
         return res.status(400).json({ message: error?.message || "Something went wrong" });
+    }
+};
+
+
+export const getRecentView = async (req, res) => {
+    try {
+        const { userId } = req?.params;
+
+        if (!userId) {
+            return res.status(400).json({ message: "Missing userId" });
+        }
+        const recentView = await Recent_View_model.find({ userId: userId }).sort({createdAt:-1});
+        return res.status(200).json({ recentView });
+    } catch (error) {
+        console.error("Error fetching payment history:", error);
+        return res.status(400).json({ message: error?.message || "Something went wrong" });
+    }
+};
+
+export const addRecentView = async (req, res) => {
+    try {
+        const { userId, fruitId, name, image, price, isSweet } = req?.body;
+
+        if (!userId || !fruitId) {
+            return res.status(400).json({ message: 'userId and fruitId are required' });
+        }
+        let recentViews = await Recent_View_model.find({ userId }).sort({ createdAt: -1 });
+        const existingIndex = recentViews.findIndex(view => view.fruitId.toString() === fruitId.toString());
+        if (existingIndex !== -1) {
+            const existingView = recentViews[existingIndex];
+            await Recent_View_model.findByIdAndDelete(existingView._id);
+            recentViews.splice(existingIndex, 1);
+        }
+        if (recentViews.length >= 4) {
+            const lastView = recentViews[recentViews.length - 1];
+            await Recent_View_model.findByIdAndDelete(lastView._id);
+        }
+        let recentData = new Recent_View_model({
+            userId,
+            name,
+            image,
+            price,
+            isSweet,
+            fruitId
+        });
+        await recentData.save();
+        return res.status(200).json({ recentData });
+    } catch (error) {
+        return res.status(400).json({ message: error?.message });
     }
 };
