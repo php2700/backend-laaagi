@@ -2797,6 +2797,7 @@ export const createUser = async (req, res) => {
 
 export const loginByGoogle = async (req, res) => {
     try {
+        console.log(req?.body, '9999999999999999999999999999999')
         const { access_token } = req.body;
 
         const googleRes = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo`, {
@@ -2804,9 +2805,9 @@ export const loginByGoogle = async (req, res) => {
                 Authorization: `Bearer ${access_token}`
             }
         });
-
+        console.log(googleRes, "fffffffffffffffffffffff")
         const profile = await googleRes.json();
-
+        console.log(profile, '66666666666666666666666666666')
         if (!profile) {
             return res.status(400).json({ message: "Invalid Google token" });
         }
@@ -2901,47 +2902,48 @@ export const userDataById = async (req, res) => {
 
 export const userplanningList = async (req, res) => {
     try {
-        const { userId } = req?.params;
-        const { category } = req.query;
-        const planningData = await PlanningModel.aggregate([
-            {
-                $match: { category: category }
-            },
-            {
-                $lookup: {
-                    from: "planninghistories",
-                    localField: "_id",
-                    foreignField: "planningId",
-                    as: "history"
-                }
-            },
-            {
-                $addFields: {
-                    userHistory: {
-                        $filter: {
-                            input: "$history",
-                            as: "h",
-                            cond: { $eq: ["$$h.userId", new mongoose.Types.ObjectId(userId.toString())] }
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    category: 1,
-                    description: 1,
-                    checked: {
-                        $cond: {
-                            if: { $gt: [{ $size: "$userHistory" }, 0] },
-                            then: { $arrayElemAt: ["$userHistory.checked", 0] },
-                            else: []
-                        }
-                    }
-                }
-            }
-        ]);
+        // const { userId } = req?.params;
+        // const { category } = req.query;
+        const planningData = await PlanningModel.find()
+        // const planningData = await PlanningModel.aggregate([
+        // {
+        //     $match: { category: category }
+        // },
+        // {
+        //     $lookup: {
+        //         from: "planninghistories",
+        //         localField: "_id",
+        //         foreignField: "planningId",
+        //         as: "history"
+        //     }
+        // },
+        //     {
+        //         $addFields: {
+        //             userHistory: {
+        //                 $filter: {
+        //                     input: "$history",
+        //                     as: "h",
+        //                     cond: { $eq: ["$$h.userId", new mongoose.Types.ObjectId(userId.toString())] }
+        //                 }
+        //             }
+        //         }
+        //     },
+        // {
+        // $project: {
+        //     category: 1,
+        // description: 1,
+        // checked: {
+        //     $cond: {
+        //         if: { $gt: [{ $size: "$userHistory" }, 0] },
+        //         then: { $arrayElemAt: ["$userHistory.checked", 0] },
+        //         else: []
+        //     }
+        // }
+        //         }
+        //     }
+        // ]);
         return res.status(200).json({
-            planningData: planningData[0],
+            planningData: planningData,
         });
     }
     catch (error) {
@@ -2953,6 +2955,8 @@ export const userplanningList = async (req, res) => {
         });
     }
 }
+
+
 
 export const userAddPlanningHistory = async (req, res) => {
     try {
@@ -3057,3 +3061,140 @@ export const designerQuoteList = async (req, res) => {
     }
 }
 
+export const userEventList = async (req, res) => {
+    try {
+        const { userId } = req?.params;
+        const { category } = req.query;
+        const planningData = await PlanningModel.aggregate([
+            {
+                $match: { category: category }
+            },
+            {
+                $lookup: {
+                    from: "planninghistories",
+                    localField: "_id",
+                    foreignField: "planningId",
+                    as: "history"
+                }
+            },
+            {
+                $addFields: {
+                    userHistory: {
+                        $filter: {
+                            input: "$history",
+                            as: "h",
+                            cond: { $eq: ["$$h.userId", new mongoose.Types.ObjectId(userId.toString())] }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    category: 1,
+                    description: 1,
+                    checked: {
+                        $cond: {
+                            if: { $gt: [{ $size: "$userHistory" }, 0] },
+                            then: { $arrayElemAt: ["$userHistory.checked", 0] },
+                            else: []
+                        }
+                    }
+                }
+            }
+        ]);
+        return res.status(200).json({
+            userCheckedEvent: planningData,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching ads:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching plannnig",
+            error: error.message
+        });
+    }
+}
+
+
+export const planningHelpReq = async (req, res) => {
+    try {
+        const { search, page = 1 } = req.query;
+        const perPage = 10;
+
+        let filter = {};
+        if (search) {
+            filter = {
+                $or: [
+                    { firstName: { $regex: search, $options: "i" } },
+                    { lastName: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
+                    { mobile: { $regex: search, $options: "i" } },
+                ],
+            };
+        };
+
+        const PlanningRq = await Planning_History_Model.find(filter)
+            .populate("planningId")
+            .populate("userId")
+            .skip((page - 1) * perPage)
+            .limit(perPage);
+
+        const totalCount = await Planning_History_Model.countDocuments();
+        const totalPages = Math.ceil(totalCount / perPage);
+        let i = 0;
+        const planningHelpReqData = PlanningRq?.map((quote) => {
+            i++;
+            return {
+                ...quote.toObject(),
+                orderId: i,
+            };
+        });
+        const paginationDetails = {
+            current_page: parseInt(page),
+            data: planningHelpReqData,
+            first_page_url: `${baseURL}api/admin?page=1`,
+            from: (page - 1) * perPage + 1,
+            last_page: totalPages,
+            last_page_url: `${baseURL}api/admin?page=${totalPages}`,
+            links: [
+                {
+                    url: null,
+                    label: "&laquo; Previous",
+                    active: false,
+                },
+                {
+                    url: `${baseURL}api/admin?page=${page}`,
+                    label: page.toString(),
+                    active: true,
+                },
+                {
+                    url: null,
+                    label: "Next &raquo;",
+                    active: false,
+                },
+            ],
+            next_page_url: null,
+            path: `${baseURL}api/admin`,
+            per_page: perPage,
+            prev_page_url: null,
+            to: (page - 1) * perPage + planningHelpReqData?.length,
+            total: totalCount,
+        };
+
+        return res.status(200).json({
+            planningHelpReqData: paginationDetails,
+            page: page.toString(),
+            total_rows: totalCount,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching ads:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching quoteData",
+            error: error.message
+        });
+    }
+
+}
