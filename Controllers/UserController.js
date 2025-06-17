@@ -3,6 +3,7 @@ import Customization_model from "../Models/Customization.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
 import { Sweet_History_Model } from "../Models/item-history.model.js";
 import { Payment_History_Model } from "../Models/payment_history.js";
+import { PrivacyPolicyModel } from "../Models/privacy-policy.model.js";
 import Recent_View_model from "../Models/recent-view.Model.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
@@ -442,7 +443,7 @@ export const getRecentView = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ message: "Missing userId" });
         }
-        const recentView = await Recent_View_model.find({ userId: userId }).sort({createdAt:-1});
+        const recentView = await Recent_View_model.find({ userId: userId }).sort({ createdAt: -1 });
         return res.status(200).json({ recentView });
     } catch (error) {
         console.error("Error fetching payment history:", error);
@@ -482,3 +483,13 @@ export const addRecentView = async (req, res) => {
         return res.status(400).json({ message: error?.message });
     }
 };
+
+
+export const getPrivacyPolicy = async (req, res) => {
+    try {
+        const privacyPolicyData = await PrivacyPolicyModel.find()
+        return res.status(200).json({ success: true, privacyPolicyData: privacyPolicyData })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message });
+    }
+}
