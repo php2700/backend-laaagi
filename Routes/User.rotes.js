@@ -1,7 +1,7 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, addRecentView, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactDetails, AddGuest, addRecentView, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getPrivacyPolicy, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
+import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 import { Protect } from "../Middlewares/authMiddleware.js";
@@ -89,6 +89,10 @@ UserRouter.get("/event-list/:userId", Authentication, Authorization(['user']), u
 UserRouter.get("/planning_list/", Authentication, Authorization(['user']), userplanningList);
 UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory);
 
+/*---------------------------planning help -------------------*/
+UserRouter.post("/add-planning-help", Authentication, Authorization(['user']), userHelpRequest);
+
+
 /*------------------- guest -----------------*/
 UserRouter.post("/add-guest", Authentication, Authorization(['user']), AddGuest);
 UserRouter.get("/guest-list/:userId", Authentication, Authorization(['user']), guestList);
@@ -106,9 +110,14 @@ UserRouter.get("/sweet-history/:id", Authentication, Authorization(['user']), ge
 UserRouter.get("/payment-data/:id", Authentication, Authorization(['user']), getPaymentView);
 UserRouter.get("/payment-history/:userId", Authentication, Authorization(['user']), getPaymentHistory);
 
+
 /*-----------------------------------------recent -view --------------------*/
 UserRouter.get("/recent-view/:userId", Authentication, Authorization(['user']), getRecentView);
 UserRouter.post('/recent-view', Authentication, Authorization(['user']), addRecentView);
+
+/*-----------------------------------------privacy-policy --------------------*/
+UserRouter.get("/privacy-policy",  getPrivacyPolicy);
+
 
 
 export default UserRouter;

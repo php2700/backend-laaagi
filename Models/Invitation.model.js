@@ -5,6 +5,18 @@ const invitationSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    image02: {
+        type: String,
+        required: true,
+    },
+    image03: {
+        type: String,
+        required: true,
+    },
+    image04: {
+        type: String,
+        required: true,
+    },
     name: {
         type: String,
         required: true
@@ -34,22 +46,7 @@ const invitationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    //   designFileUrl: {
-    //     type: String,
-    //     required: true
-    // },
-    // amount: {
-    //     type: String,
-    //     required: true
-    // },
-    //   updatedAt: {
-    //     type: Date,
-    //     default: Date.now
-    // },
-    //  imagePreviewUrl: { 
-    //     type: String,
-    //     required: false 
-    // },
+
 }, {
     timestamps: true
 });

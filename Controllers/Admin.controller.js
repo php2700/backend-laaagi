@@ -37,6 +37,7 @@ import { response } from "express";
 import { Sweet_History_Model } from "../Models/item-history.model.js";
 import { singleItemPaymentHistory } from "./UserController.js";
 import { upload_design_quote_model } from "../Models/upload_design_quote.model.js";
+import { Planning_Help_Req_Model } from "../Models/Planning-help.model.js";
 
 
 
@@ -964,14 +965,24 @@ export const addInvitationDesign = async (req, res) => {
 
 
 export const addInvitation = async (req, res) => {
-    inviation.single("image")(req, res, async (err) => {
+    // inviation.single("image")(req, res, async (err) => {
+    inviation.fields([
+        { name: "image", maxCount: 1 },
+        { name: "image02", maxCount: 1 },
+        { name: "image03", maxCount: 1 },
+        { name: "image04", maxCount: 1 }
+    ])(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
         const { name, category, description, price } = req?.body;
         const inviationData = new Invitation_Model({
-            image: "invitation/" + req.file?.filename,
+            image: "invitation/" + req.files.image[0].filename,
+            image02: "invitation/" + req.files.image02[0].filename,
+            image03: "invitation/" + req.files.image03[0].filename,
+            image04: "invitation/" + req.files.image04[0].filename,
+
             name, description, category, price
         });
         await inviationData.save();
@@ -997,7 +1008,12 @@ export const deleteInvitation = async (req, res) => {
 }
 
 export const updateInvitation = async (req, res) => {
-    await inviation.single("image")(req, res, async (err) => {
+    inviation.fields([
+        { name: "image", maxCount: 1 },
+        { name: "image02", maxCount: 1 },
+        { name: "image03", maxCount: 1 },
+        { name: "image04", maxCount: 1 }
+    ])(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
@@ -1021,10 +1037,20 @@ export const updateInvitation = async (req, res) => {
             updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
         }
 
-
-        if (req?.file) {
-            updatedData.image = "invitation/" + req.file?.filename
+        if (req.files?.image?.[0]) {
+            updatedData.image = "invitation/" + req.files.image[0].filename;
         }
+        if (req.files?.image02?.[0]) {
+            updatedData.image02 = "invitation/" + req.files.image02[0].filename;
+        }
+        if (req.files?.image03?.[0]) {
+            updatedData.image03 = "invitation/" + req.files.image03[0].filename;
+        }
+        if (req.files?.image04?.[0]) {
+            updatedData.image04 = "invitation/" + req.files.image04[0].filename;
+        }
+
+
         await Invitation_Model.findByIdAndUpdate(_id,
             updatedData
         )
@@ -2980,6 +3006,21 @@ export const userAddPlanningHistory = async (req, res) => {
 }
 
 
+export const userHelpRequest = async (req, res) => {
+    try {
+        const { userId, planningId } = req?.body;
+        if (!userId || !planningId) {
+            return res.status(400).json({ message: "field are require" })
+        }
+        const helpReq = new Planning_Help_Req_Model({ userId, planningId });
+        await helpReq.save();
+        return res.status(200).json({ helpReqData: helpReq })
+
+    } catch (error) {
+        return res.status(400).json({ message: error?.message })
+    }
+}
+
 export const designerQuoteList = async (req, res) => {
     try {
         const { search, page = 1 } = req.query;
@@ -3134,13 +3175,13 @@ export const planningHelpReq = async (req, res) => {
             };
         };
 
-        const PlanningRq = await Planning_History_Model.find(filter)
+        const PlanningRq = await Planning_Help_Req_Model.find(filter)
             .populate("planningId")
             .populate("userId")
             .skip((page - 1) * perPage)
             .limit(perPage);
 
-        const totalCount = await Planning_History_Model.countDocuments();
+        const totalCount = await Planning_Help_Req_Model.countDocuments();
         const totalPages = Math.ceil(totalCount / perPage);
         let i = 0;
         const planningHelpReqData = PlanningRq?.map((quote) => {
