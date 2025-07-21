@@ -1,7 +1,7 @@
 // 
 import express from "express";
 import { addContactDetails, AddGuest, addRecentView, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getPrivacyPolicy, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, firstInvitationCategoryWise, firstSweetCategoryWise, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 import { Protect } from "../Middlewares/authMiddleware.js";
@@ -50,6 +50,8 @@ UserRouter.get("/review_list", userReviewList);
 /*---------------------sweets ------*/
 UserRouter.get("/sweet/:id", sweetById);
 UserRouter.get("/sweets_list", userSweetsList);
+UserRouter.get("/first-sweet-categroy-wise", firstSweetCategoryWise);
+
 
 /*---------------decorations -----------*/
 UserRouter.get("/decoration_list", userDecorationList);
@@ -60,6 +62,7 @@ UserRouter.get('/designers_list', userDesigner);
 /*---------------invitations ----------*/
 UserRouter.get("/invitation/:id", userInvitationById);
 UserRouter.get("/invitation_list", userInvitationList);
+UserRouter.get("/first-invitation-categroy-wise", firstInvitationCategoryWise);
 
 /*----------------upload-design-quote --------*/
 UserRouter.post("/upload-design-quote", uploadDesignQuote);
@@ -116,7 +119,7 @@ UserRouter.get("/recent-view/:userId", Authentication, Authorization(['user']), 
 UserRouter.post('/recent-view', Authentication, Authorization(['user']), addRecentView);
 
 /*-----------------------------------------privacy-policy --------------------*/
-UserRouter.get("/privacy-policy",  getPrivacyPolicy);
+UserRouter.get("/privacy-policy", getPrivacyPolicy);
 
 
 

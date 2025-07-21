@@ -16,7 +16,7 @@ const sweetsSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true
-    }, 
+    },
     description: {
         type: String,
         required: true
@@ -39,9 +39,14 @@ const sweetsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-     isBestSeller: {
+    isBestSeller: {
         type: Boolean,
         default: false
+    },
+    isDeliveryCharge: {
+        type: Boolean,
+        default: true,
+        required: false
     },
 }, {
     timestamps: true
