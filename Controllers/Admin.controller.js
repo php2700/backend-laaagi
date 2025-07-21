@@ -354,9 +354,9 @@ export const updateSweets = async (req, res) => {
         }
 
         existingSweet.name = name || existingSweet.name
-        existingSweet.category= category || existingSweet.category
-        existingSweet.description= description || existingSweet.description
-        existingSweet.amount= amount || existingSweet.amount
+        existingSweet.category = category || existingSweet.category
+        existingSweet.description = description || existingSweet.description
+        existingSweet.amount = amount || existingSweet.amount
 
 
         if (typeof isWedding !== "undefined") {
@@ -374,7 +374,7 @@ export const updateSweets = async (req, res) => {
         if (req?.file) {
             existingSweet.image = "sweets/" + req.file?.filename
         }
-        await existingSweet.save( )
+        await existingSweet.save()
         return res.json({ message: "data_updated" });
     });
 }
@@ -2475,19 +2475,18 @@ export const userSweetsList = async (req, res) => {
 
         pipeline.push({ $sort: { numericPrice: -1 } });
         const sweetsData = await Sweets_Model.aggregate(pipeline);
-        console.log(sweetsData, "sweetsData")
 
-        // let i = 0;
-        // const updatedSweets = sweetsData?.map((sweet) => {
-        //     i++;
-        //     return {
-        //         ...sweet.toObject(),
-        //         orderId: i,
-        //     };
-        // });
+        let i = 0;
+        const updatedSweets = sweetsData?.map((sweet) => {
+            i++;
+            return {
+                ...sweet,
+                orderId: i,
+            };
+        });
 
         return res.status(200).json({
-            sweetsData: sweetsData,
+            sweetsData: updatedSweets,
         });
     }
     catch (error) {
