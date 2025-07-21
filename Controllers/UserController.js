@@ -318,7 +318,7 @@ export const singleItemPaymentHistory = async (req, res) => {
     try {
         console.log("Received payment request:", req.body);
 
-        const { userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name, address, pincode } = req?.body;
+        const { userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name, address, pincode, unit, mobile } = req?.body;
 
         if (!description || !rate) {
             return res.status(400).json({
@@ -328,7 +328,7 @@ export const singleItemPaymentHistory = async (req, res) => {
         }
 
         const newPayment = new Sweet_History_Model({
-            userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name, address, pincode
+            userId, description, img, sweet, rate, razorpay_order_id, amount, quantity, name, address, pincode, unit, mobile
         });
 
         console.log(newPayment, "newPaymet")

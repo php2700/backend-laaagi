@@ -42,6 +42,11 @@ const invitationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isDeliveryCharge: {
+        type: Boolean,
+        default: true,
+        required: false
+    },
     createdAt: {
         type: Date,
         default: Date.now,

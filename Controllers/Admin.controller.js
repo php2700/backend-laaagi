@@ -346,35 +346,35 @@ export const updateSweets = async (req, res) => {
         }
         // const { _id, name, amount, category, description } = req.body;
 
-        const { _id, name, amount, category, description, isSweet, isWedding, isBestSeller } = req.body;
+        const { _id, name, amount, category, description, isSweet, isWedding, isBestSeller, isDeliveryCharge } = req.body;
 
         const existingSweet = await Sweets_Model.findById(_id);
         if (!existingSweet) {
             return res.status(404).json({ error: "Sweet not found" });
         }
 
-        const updatedData = {
-            name,
-            amount,
-            category,
-            description
-        };
-        if (isSweet) {
-            updatedData.isSweet = (isSweet == 'true') ? true : false
+        existingSweet.name = name || existingSweet.name
+        existingSweet.category= category || existingSweet.category
+        existingSweet.description= description || existingSweet.description
+        existingSweet.amount= amount || existingSweet.amount
+
+
+        if (typeof isWedding !== "undefined") {
+            existingSweet.isWedding = isWedding === "true";
         }
-        if (isWedding) {
-            updatedData.isWedding = (isWedding == 'true') ? true : false
+
+        if (typeof isBestSeller !== "undefined") {
+            existingSweet.isBestSeller = isBestSeller === "true";
         }
-        if (isBestSeller) {
-            updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
+
+        if (typeof isDeliveryCharge !== "undefined") {
+            existingSweet.isDeliveryCharge = isDeliveryCharge === "true";
         }
 
         if (req?.file) {
-            updatedData.image = "sweets/" + req.file?.filename
+            existingSweet.image = "sweets/" + req.file?.filename
         }
-        await Sweets_Model.findByIdAndUpdate(_id,
-            updatedData
-        )
+        await existingSweet.save( )
         return res.json({ message: "data_updated" });
     });
 }
@@ -1017,43 +1017,40 @@ export const updateInvitation = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, name, category, description, price, isInvitationBoxes, isBestSeller } = req.body;
+        const { _id, name, category, description, price, isInvitationBoxes, isBestSeller, isDeliveryCharge } = req.body;
 
         const existInvitation = await Invitation_Model.findById(_id);
         if (!existInvitation) {
             return res.status(400).json({ error: "invitation not found" });
         }
 
-        const updatedData = {
-            name,
-            category,
-            description,
-            price
-        };
-        if (isInvitationBoxes) {
-            updatedData.isInvitationBoxes = (isInvitationBoxes == 'true') ? true : false
+        existInvitation.name = name || existInvitation?.name;
+        existInvitation.category = category || existInvitation?.category;
+        existInvitation.description = description || existInvitation?.description;
+        existInvitation.price = price || existInvitation?.price;
+
+        if (typeof isBestSeller !== "undefined") {
+            existInvitation.isBestSeller = isBestSeller === "true";
         }
-        if (isBestSeller) {
-            updatedData.isBestSeller = (isBestSeller == 'true') ? true : false
+
+        if (typeof isDeliveryCharge !== "undefined") {
+            existInvitation.isDeliveryCharge = isDeliveryCharge === "true";
         }
 
         if (req.files?.image?.[0]) {
-            updatedData.image = "invitation/" + req.files.image[0].filename;
+            existInvitation.image = "invitation/" + req.files.image[0].filename;
         }
         if (req.files?.image02?.[0]) {
-            updatedData.image02 = "invitation/" + req.files.image02[0].filename;
+            existInvitation.image02 = "invitation/" + req.files.image02[0].filename;
         }
         if (req.files?.image03?.[0]) {
-            updatedData.image03 = "invitation/" + req.files.image03[0].filename;
+            existInvitation.image03 = "invitation/" + req.files.image03[0].filename;
         }
         if (req.files?.image04?.[0]) {
-            updatedData.image04 = "invitation/" + req.files.image04[0].filename;
+            existInvitation.image04 = "invitation/" + req.files.image04[0].filename;
         }
 
-
-        await Invitation_Model.findByIdAndUpdate(_id,
-            updatedData
-        )
+        await existInvitation.save();
         return res.json({ message: "data_updated" });
     });
 }
@@ -2432,14 +2429,7 @@ export const userSweetsList = async (req, res) => {
     try {
 
         const query = {};
-        // const { category } = req?.query;
-        // if (category) {
-        //     query.category = category;
-        // }
-        // 
-        // const sweetsData = await Sweets_Model.find(query)
-
-        const { category, isWedding, isSweet } = req?.query;
+        const { category, isWedding, isSweet, price } = req?.query;
         if (category) {
             query.category = category;
         }
@@ -2450,19 +2440,54 @@ export const userSweetsList = async (req, res) => {
             query.isSweet = (isSweet == 'true') ? true : false
         }
 
-        const sweetsData = await Sweets_Model.find(query).sort({ updatedAt: -1 });
+        const pipeline = [
+            { $match: query },
+            {
+                $addFields: {
+                    numericPrice: {
+                        $toDouble: {
+                            $arrayElemAt: [{ $split: ["$amount", "/"] }, 0]
+                        }
+                    }
+                }
+            }
+        ];
 
-        let i = 0;
-        const updatedSweets = sweetsData?.map((sweet) => {
-            i++;
-            return {
-                ...sweet.toObject(),
-                orderId: i,
-            };
-        });
+        if (price && price !== 'All') {
+            if (price === '700 & Above') {
+                pipeline.push({
+                    $match: {
+                        numericPrice: { $gte: 700 }
+                    }
+                });
+            } else if (price.includes('-')) {
+                const [priceStart, priceEnd] = price.split('-').map(Number);
+                pipeline.push({
+                    $match: {
+                        numericPrice: {
+                            $gte: priceStart,
+                            $lte: priceEnd
+                        }
+                    }
+                });
+            }
+        }
+
+        pipeline.push({ $sort: { numericPrice: -1 } });
+        const sweetsData = await Sweets_Model.aggregate(pipeline);
+        console.log(sweetsData, "sweetsData")
+
+        // let i = 0;
+        // const updatedSweets = sweetsData?.map((sweet) => {
+        //     i++;
+        //     return {
+        //         ...sweet.toObject(),
+        //         orderId: i,
+        //     };
+        // });
 
         return res.status(200).json({
-            sweetsData: updatedSweets,
+            sweetsData: sweetsData,
         });
     }
     catch (error) {
@@ -2475,6 +2500,84 @@ export const userSweetsList = async (req, res) => {
     }
 }
 
+
+export const firstSweetCategoryWise = async (req, res) => {
+    try {
+
+
+        const sweetsData = await Sweets_Model.aggregate([
+            {
+                $sort: { amount: -1 }
+            },
+            {
+                $group: {
+                    _id: '$category',
+                    maxAmount: { $first: '$amount' },
+                    image: { $first: '$image' },
+                    name: { $first: '$name' },
+                    originalId: { $first: '$_id' }
+                }
+            },
+            {
+                $project: {
+                    category: '$_id',
+                    _id: '$originalId',
+                    maxAmount: 1,
+                    image: 1,
+                    name: 1
+                }
+            }
+        ])
+        return res.status(200).json({
+            sweetsData: sweetsData,
+        });
+
+    }
+    catch (error) {
+        console.error("Error fetching sweetsData:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+}
+
+
+export const firstInvitationCategoryWise = async (req, res) => {
+    try {
+        const invitation = await Invitation_Model.aggregate([
+            {
+                $sort: {
+                    price: -1
+                }
+            }, {
+                $group: {
+                    _id: '$category',
+                    maxamount: { $first: '$price' },
+                    name: { $first: '$name' },
+                    image: { $first: '$image' },
+                    originalId: { $first: '$_id' }
+                }
+            }, {
+                $project: {
+                    category: '$_id',
+                    _id: '$originalId',
+                    maxamount: 1,
+                    name: 1,
+                    image: 1
+                }
+            }
+        ])
+        return res.status(200).json({ initation: invitation })
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong while fetching sweets",
+            error: error.message
+        });
+    }
+}
 
 export const userDecorationList = async (req, res) => {
     try {
@@ -2666,7 +2769,7 @@ export const userInvitationList = async (req, res) => {
         }
 
 
-        const invitationData = await Invitation_Model.find(query).sort({ updatedAt: -1 });
+        const invitationData = await Invitation_Model.find(query).sort({ price: -1 });
         console.log(invitationData, '333')
         let i = 0;
         const updatedInvitationData = invitationData.map((invitation) => {
@@ -2823,7 +2926,6 @@ export const createUser = async (req, res) => {
 
 export const loginByGoogle = async (req, res) => {
     try {
-        console.log(req?.body, '9999999999999999999999999999999')
         const { access_token } = req.body;
 
         const googleRes = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo`, {
@@ -2831,19 +2933,23 @@ export const loginByGoogle = async (req, res) => {
                 Authorization: `Bearer ${access_token}`
             }
         });
-        console.log(googleRes, "fffffffffffffffffffffff")
         const profile = await googleRes.json();
-        console.log(profile, '66666666666666666666666666666')
+        console.log(access_token, '66666666666666666666666666666')
         if (!profile) {
             return res.status(400).json({ message: "Invalid Google token" });
         }
 
         let user = await user_Model.findOne({ email: profile?.email });
+        if (user) {
+            user.token = access_token;
+            await user.save();
+        }
         if (!user) {
             user = await user_Model.create({
                 name: profile.name,
                 email: profile.email,
-                registerBy: 'google'
+                registerBy: 'google',
+                token: access_token
             });
         }
         const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1 d" });
@@ -2883,7 +2989,7 @@ export const updateAddress = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id, address, name, addressBy, pincode } = req?.body;
+        const { _id, address, name, addressBy, pincode, mobile } = req?.body;
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
@@ -2892,6 +2998,8 @@ export const updateAddress = async (req, res) => {
             isExistUser.address = address || isExistUser?.address;
         if (addressBy)
             isExistUser.addressBy = addressBy || isExistUser?.addressBy;
+        if (mobile)
+            isExistUser.mobile = mobile || isExistUser?.mobile;
         if (name)
             isExistUser.name = name || isExistUser?.name
         if (pincode) {
