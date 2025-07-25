@@ -1,3 +1,5 @@
+import { response } from "express";
+import { Cart_model } from "../Models/cart.model.js";
 import Contact_model from "../Models/Contact_us.model.js";
 import Customization_model from "../Models/Customization.model.js";
 import { Guest_Model } from "../Models/guest.model.js";
@@ -7,6 +9,7 @@ import { PrivacyPolicyModel } from "../Models/privacy-policy.model.js";
 import Recent_View_model from "../Models/recent-view.Model.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
+import { Cart_Sweet_model } from "../Models/cart_sweets.model.js";
 
 
 export const addContactDetails = async (req, res) => {
@@ -491,5 +494,132 @@ export const getPrivacyPolicy = async (req, res) => {
         return res.status(200).json({ success: true, privacyPolicyData: privacyPolicyData })
     } catch (error) {
         return res.status(400).json({ message: error?.message });
+    }
+}
+
+export const addCart = async (req, res) => {
+    try {
+        const { invitationId, weight, boxName, userId, paymentHistory, tempId, sectionBoxName } = req.body;
+        const cartData = new Cart_model({ invitationId, userId, weight, boxName, tempId, sectionBoxName });
+        const response = await cartData.save();
+        const updatedPaymentHistory = paymentHistory?.map((ele) => ({
+            ...ele,
+            cartId: response?._id,
+        }));
+        await Cart_Sweet_model.insertMany(updatedPaymentHistory);
+        return res.status(200).json({ success: true, message: 'details added' })
+
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error?.message })
+    }
+}
+
+
+export const getCart = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const getCartData = await Cart_model.find({ userId: userId }).populate("invitationId")
+        return res.status(200).json({ success: true, cartData: getCartData })
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error.message })
+    }
+}
+
+
+export const getCartDetailsById = async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        const getCartDataById = await Cart_model.findOne({ _id: id })
+            .populate('invitationId')
+        const sweetData = await Cart_Sweet_model.find({ cartId: id }).populate("sweetId")
+        const modifyData = sweetData?.map((ele) => (
+            {
+                index: ele.index, amount: ele?.sweetId?.amount, sweetName: ele?.sweetId?.name, image: ele?.sweetId?.image, sweetId: ele?.sweetId?._id,
+                id: getCartDataById?.tempId,
+                invitationId: getCartDataById?.invitationId?._id,
+                name: getCartDataById?.sectionBoxName
+            }
+        ))
+        return res.status(200).json({ success: true, cartDetail: getCartDataById, sweet: sweetData, updated: modifyData })
+
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error?.message })
+    }
+}
+
+
+export const calculatePrice = async (req, res) => {
+    try {
+        const { sweet = [], weight = 1, boxName, newObj } = req.body;
+        if (newObj?.name) {
+            const isExistCart = await Cart_Sweet_model.findOne({ cartId: newObj?.cartId, index: newObj?.index });
+            let updatedCart = { cartId: newObj?.cartId, index: newObj?.index, name: newObj?.name, sweetId: newObj?.sweetId, img: newObj?.image }
+            if (isExistCart) {
+
+                isExistCart.name = updatedCart.name,
+                    isExistCart.sweetId = updatedCart.sweetId,
+                    isExistCart.img = updatedCart.img
+                await isExistCart.save();
+            }
+            else {
+                const insSave = new Cart_Sweet_model(updatedCart);
+                await insSave.save();
+            }
+        }
+
+
+        const updatedAmounts = [0, 0, 0, 0, 0];
+        const updatedHistory = [];
+
+        sweet.forEach((selectedSweet) => {
+            const index = selectedSweet?.index;
+
+            if (index >= 0) {
+                const perKgRate = parseFloat((selectedSweet?.amount || '0')?.split("/")[0]);
+                const calculatedAmount = calculateTotalAmount(perKgRate, weight, boxName);
+
+                updatedAmounts[index] = calculatedAmount;
+                updatedHistory.push({
+                    index,
+                    name: selectedSweet?.sweetName,
+                    img: selectedSweet?.image,
+                    sweetId: selectedSweet?.sweetId,
+                    id: selectedSweet?.id,
+                    invitationId: selectedSweet?.invitationId
+                });
+            }
+        });
+        return res.status(200).json({
+            success: true,
+            amounts: updatedAmounts,
+            paymentHistory: updatedHistory
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error?.message });
+    }
+};
+
+
+const calculateTotalAmount = (price, weight, boxName) => {
+    if (boxName == 'Normal Box') {
+        return parseInt(price / 1000 * weight)
+    }
+    else if (boxName == '4 Section in box') {
+        return parseInt((price / 1000) * weight / 4)
+    }
+    else if (boxName == '3 Section in box') {
+        return parseInt((price / 1000) * weight / 3)
+    } else {
+        return parseInt((price / 1000) * weight / 5)
+    }
+}
+
+export const deleteCart = async (req, res) => {
+    try {
+        const id = req.params?.id;
+        await Cart_model.deleteOne({ _id: id });
+        return res.status(200).json({ success: true, message: 'delete_successfully' })
+    } catch (error) {
+        return res.status(400).json({ success: true, message: error?.message })
     }
 }

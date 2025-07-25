@@ -1,6 +1,6 @@
 // 
 import express from "express";
-import { addContactDetails, AddGuest, addRecentView, createCustomizationRequest, deleteGuest, editGuest, getPaymentHistory, getPaymentView, getPrivacyPolicy, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
+import { addCart, addContactDetails, AddGuest, addRecentView, calculatePrice, createCustomizationRequest, deleteCart, deleteGuest, editGuest, getCart, getCartDetailsById, getPaymentHistory, getPaymentView, getPrivacyPolicy, getRecentView, getSweetHistory, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
 import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, firstInvitationCategoryWise, firstSweetCategoryWise, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
@@ -118,8 +118,16 @@ UserRouter.get("/payment-history/:userId", Authentication, Authorization(['user'
 UserRouter.get("/recent-view/:userId", Authentication, Authorization(['user']), getRecentView);
 UserRouter.post('/recent-view', Authentication, Authorization(['user']), addRecentView);
 
+/*---------------------cart ------------------------*/
+UserRouter.post('/add-cart', Authentication, Authorization(['user']), addCart);
+UserRouter.get('/get-cart/:id', Authentication, Authorization(['user']), getCart);
+UserRouter.get('/cart-details-id/:id', Authentication, Authorization(['user']), getCartDetailsById)
+UserRouter.delete("/delete-cart/:id",deleteCart)
+
 /*-----------------------------------------privacy-policy --------------------*/
 UserRouter.get("/privacy-policy", getPrivacyPolicy);
+
+UserRouter.post("/calculate-price", calculatePrice)
 
 
 
