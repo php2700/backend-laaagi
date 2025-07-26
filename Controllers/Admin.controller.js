@@ -2502,11 +2502,21 @@ export const userSweetsList = async (req, res) => {
 
 export const firstSweetCategoryWise = async (req, res) => {
     try {
-
-
         const sweetsData = await Sweets_Model.aggregate([
             {
-                $sort: { amount: -1 }
+                $addFields: {
+                    numericAmount: {
+                        $toDouble: {
+                            $arrayElemAt: [
+                                { $split: ['$amount', '/'] },
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: { numericAmount: -1 }
             },
             {
                 $group: {
@@ -2527,6 +2537,7 @@ export const firstSweetCategoryWise = async (req, res) => {
                 }
             }
         ])
+        console.log(sweetsData)
         return res.status(200).json({
             sweetsData: sweetsData,
         });
@@ -2989,6 +3000,10 @@ export const updateAddress = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
         const { _id, address, name, addressBy, pincode, mobile } = req?.body;
+        const isMobileExist = await user_Model.findOne({ mobile: mobile });
+        if (isMobileExist) {
+            return res.status(400).json({ success: false, message: 'mobile_exist' })
+        }
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
