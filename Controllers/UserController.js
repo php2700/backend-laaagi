@@ -10,6 +10,9 @@ import Recent_View_model from "../Models/recent-view.Model.js";
 import User from '../Models/User.js';
 import { user_Model } from "../Models/User.model.js";
 import { Cart_Sweet_model } from "../Models/cart_sweets.model.js";
+import { ShippingModel } from "../Models/shipping.js";
+import { PaymentRefundModel } from "../Models/payment_refund.js";
+import { TermAndConditionModel } from "../Models/term_condition.js";
 
 
 export const addContactDetails = async (req, res) => {
@@ -497,10 +500,39 @@ export const getPrivacyPolicy = async (req, res) => {
     }
 }
 
+export const getShipping = async (req, res) => {
+    try {
+        const shippingData = await ShippingModel.find()
+        return res.status(200).json({ success: true, shippingData: shippingData })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message });
+    }
+}
+
+export const getPaymentRef = async (req, res) => {
+    try {
+        const paymentRefundData = await PaymentRefundModel.find()
+        return res.status(200).json({ success: true, paymentRefundData: paymentRefundData })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message });
+    }
+}
+
+export const getTermCondition = async (req, res) => {
+    try {
+        const termAndCondtionData = await TermAndConditionModel.find()
+        return res.status(200).json({ success: true, termAndCondtionData: termAndCondtionData })
+    } catch (error) {
+        return res.status(400).json({ message: error?.message });
+    }
+}
+
+
+
 export const addCart = async (req, res) => {
     try {
-        const { invitationId, weight, boxName, userId, paymentHistory, tempId, sectionBoxName } = req.body;
-        const cartData = new Cart_model({ invitationId, userId, weight, boxName, tempId, sectionBoxName });
+        const { invitationId, weight, boxName, userId, paymentHistory, tempId, sectionBoxName, status } = req.body;
+        const cartData = new Cart_model({ invitationId, userId, weight, boxName, tempId, sectionBoxName, status });
         const response = await cartData.save();
         const updatedPaymentHistory = paymentHistory?.map((ele) => ({
             ...ele,
@@ -518,7 +550,9 @@ export const addCart = async (req, res) => {
 export const getCart = async (req, res) => {
     try {
         const userId = req.params.id;
-        const getCartData = await Cart_model.find({ userId: userId }).populate("invitationId")
+        const status = req?.query.status;
+        const updateStatus = status == "true" ? true : false
+        const getCartData = await Cart_model.find({ userId: userId, status: updateStatus }).populate("invitationId")
         return res.status(200).json({ success: true, cartData: getCartData })
     } catch (error) {
         return res.status(400).json({ success: false, message: error.message })

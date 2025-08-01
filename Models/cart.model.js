@@ -25,6 +25,11 @@ const cartSchema = new mongoose.Schema({
     sectionBoxName: {
         type: String,
         required: true,
+    },
+    status:{
+        type:Boolean,
+        default:false,
+        required:false
     }
 }, {
     timestamps: true

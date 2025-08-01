@@ -211,11 +211,13 @@ const invitationFile = multer.diskStorage({
 const uploadInvitation = multer({
   storage: invitationFile,
   limits: {
-    fileSize: 10 * 1024 * 1024
+    fileSize: 20 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image files are allowed!"));
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm", "video/quicktime"];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Only image and video files are allowed!"));
     }
     cb(null, true);
   }

@@ -51,6 +51,10 @@ const invitationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    videoFile: {
+        type: String,
+        required: true
+    }
 
 }, {
     timestamps: true
