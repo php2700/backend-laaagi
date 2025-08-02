@@ -987,7 +987,7 @@ export const addInvitation = async (req, res) => {
             image02: "invitation/" + req.files.image02[0].filename,
             image03: "invitation/" + req.files.image03[0].filename,
             image04: "invitation/" + req.files.image04[0].filename,
-            videoFile: "invitation/"+ req.files.videoFile[0].filename,
+            videoFile: "invitation/" + req.files.videoFile[0].filename,
             name, description, category, price
         });
         await inviationData.save();
@@ -2434,7 +2434,7 @@ export const userSweetsList = async (req, res) => {
     try {
 
         const query = {};
-        const { category, isWedding, isSweet, price } = req?.query;
+        const { category, isWedding, isSweet, price, search } = req?.query;
         if (category) {
             query.category = category;
         }
@@ -2444,6 +2444,10 @@ export const userSweetsList = async (req, res) => {
         if (isSweet) {
             query.isSweet = (isSweet == 'true') ? true : false
         }
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
 
         const pipeline = [
             { $match: query },
@@ -2657,10 +2661,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name, category, description, price } = req?.body;
+        const { name, category, description, price,userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name, description, category, price
+            name, description, category, price,userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
@@ -2683,7 +2687,7 @@ export const getInvitationQuote = async (req, res) => {
         };
 
 
-        const inviationQuoteData = await upload_design_quote_model.find(filter).sort({ createdAt: -1 })
+        const inviationQuoteData = await upload_design_quote_model.find(filter).populate('userId').sort({ createdAt: -1 })
             .skip((page - 1) * perPage)
             .limit(perPage);
 
@@ -3407,7 +3411,7 @@ export const termAndCondition = async (req, res) => {
                 message: "term and condition added successfully!",
             });
         }
-        isTermAndCondition.date = data;
+        isTermAndCondition.data = data;
         await isTermAndCondition.save();
         return res.status(200).json({
             message: "term and condition updated successfully!",

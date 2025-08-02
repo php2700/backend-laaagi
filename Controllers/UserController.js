@@ -636,15 +636,15 @@ export const calculatePrice = async (req, res) => {
 
 const calculateTotalAmount = (price, weight, boxName) => {
     if (boxName == 'Normal Box') {
-        return parseInt(price / 1000 * weight)
+        return parseInt(price / 400 * weight)
     }
     else if (boxName == '4 Section in box') {
-        return parseInt((price / 1000) * weight / 4)
+        return parseInt((price / 400) * weight / 4)
     }
     else if (boxName == '3 Section in box') {
-        return parseInt((price / 1000) * weight / 3)
+        return parseInt((price / 400) * weight / 3)
     } else {
-        return parseInt((price / 1000) * weight / 5)
+        return parseInt((price / 400) * weight / 5)
     }
 }
 
