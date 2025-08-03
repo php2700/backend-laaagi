@@ -2989,7 +2989,7 @@ export const verifyOtp = async (req, res) => {
         let user = await user_Model.findOne({ otp: otp, _id: _id });
         if (user) {
             user.otp = null;
-            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1m" });
+            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "7d" });
             await user.save();
             return res.json({ token, user });
         }
