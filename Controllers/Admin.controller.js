@@ -38,6 +38,10 @@ import { Sweet_History_Model } from "../Models/item-history.model.js";
 import { singleItemPaymentHistory } from "./UserController.js";
 import { upload_design_quote_model } from "../Models/upload_design_quote.model.js";
 import { Planning_Help_Req_Model } from "../Models/Planning-help.model.js";
+import { PrivacyPolicyModel } from "../Models/privacy-policy.model.js";
+import { TermAndConditionModel } from "../Models/term_condition.js";
+import { ShippingModel } from "../Models/shipping.js";
+import { PaymentRefundModel } from "../Models/payment_refund.js";
 
 
 
@@ -970,7 +974,8 @@ export const addInvitation = async (req, res) => {
         { name: "image", maxCount: 1 },
         { name: "image02", maxCount: 1 },
         { name: "image03", maxCount: 1 },
-        { name: "image04", maxCount: 1 }
+        { name: "image04", maxCount: 1 },
+        { name: "videoFile", maxCount: 1 }
     ])(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
@@ -982,7 +987,7 @@ export const addInvitation = async (req, res) => {
             image02: "invitation/" + req.files.image02[0].filename,
             image03: "invitation/" + req.files.image03[0].filename,
             image04: "invitation/" + req.files.image04[0].filename,
-
+            videoFile: "invitation/" + req.files.videoFile[0].filename,
             name, description, category, price
         });
         await inviationData.save();
@@ -2429,7 +2434,7 @@ export const userSweetsList = async (req, res) => {
     try {
 
         const query = {};
-        const { category, isWedding, isSweet, price } = req?.query;
+        const { category, isWedding, isSweet, price, search } = req?.query;
         if (category) {
             query.category = category;
         }
@@ -2439,6 +2444,10 @@ export const userSweetsList = async (req, res) => {
         if (isSweet) {
             query.isSweet = (isSweet == 'true') ? true : false
         }
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
 
         const pipeline = [
             { $match: query },
@@ -2502,11 +2511,21 @@ export const userSweetsList = async (req, res) => {
 
 export const firstSweetCategoryWise = async (req, res) => {
     try {
-
-
         const sweetsData = await Sweets_Model.aggregate([
             {
-                $sort: { amount: -1 }
+                $addFields: {
+                    numericAmount: {
+                        $toDouble: {
+                            $arrayElemAt: [
+                                { $split: ['$amount', '/'] },
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: { numericAmount: -1 }
             },
             {
                 $group: {
@@ -2527,6 +2546,7 @@ export const firstSweetCategoryWise = async (req, res) => {
                 }
             }
         ])
+        console.log(sweetsData)
         return res.status(200).json({
             sweetsData: sweetsData,
         });
@@ -2641,10 +2661,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name, category, description, price } = req?.body;
+        const { name, category, description, price,userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name, description, category, price
+            name, description, category, price,userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
@@ -2667,7 +2687,7 @@ export const getInvitationQuote = async (req, res) => {
         };
 
 
-        const inviationQuoteData = await upload_design_quote_model.find(filter).sort({ createdAt: -1 })
+        const inviationQuoteData = await upload_design_quote_model.find(filter).populate('userId').sort({ createdAt: -1 })
             .skip((page - 1) * perPage)
             .limit(perPage);
 
@@ -2969,7 +2989,7 @@ export const verifyOtp = async (req, res) => {
         let user = await user_Model.findOne({ otp: otp, _id: _id });
         if (user) {
             user.otp = null;
-            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "1d" });
+            const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JSON_SECRET, { expiresIn: "7d" });
             await user.save();
             return res.json({ token, user });
         }
@@ -2989,6 +3009,13 @@ export const updateAddress = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
         const { _id, address, name, addressBy, pincode, mobile } = req?.body;
+        if (mobile) {
+            const isMobileExist = await user_Model.findOne({ mobile: mobile });
+            if (isMobileExist) {
+                return res.status(400).json({ success: false, message: 'mobile_exist' })
+            }
+        }
+
         const isExistUser = await user_Model.findById(_id);
         if (!isExistUser) {
             return res.status(400).json({ error: "Error id not found" });
@@ -3346,3 +3373,102 @@ export const planningHelpReq = async (req, res) => {
     }
 
 }
+
+
+export const updatePrivacyPolicy = async (req, res) => {
+    try {
+        const { data } = req.body;
+        const isPrivacyPolicy = await PrivacyPolicyModel.findOne();
+        if (!isPrivacyPolicy) {
+            const newPolicy = new PrivacyPolicyModel({ data });
+            await newPolicy.save();
+            return res.status(201).json({
+                message: "Privacy policy added successfully!",
+            });
+        }
+        isPrivacyPolicy.data = data;
+        await isPrivacyPolicy.save();
+        return res.status(200).json({
+            message: "privacy policy updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
+
+export const termAndCondition = async (req, res) => {
+    try {
+        const { data } = req.body;
+        const isTermAndCondition = await TermAndConditionModel.findOne();
+        if (!isTermAndCondition) {
+            const newTermAndCondition = new TermAndConditionModel({ data });
+            await newTermAndCondition.save();
+            return res.status(201).json({
+                message: "term and condition added successfully!",
+            });
+        }
+        isTermAndCondition.data = data;
+        await isTermAndCondition.save();
+        return res.status(200).json({
+            message: "term and condition updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
+
+export const shipping = async (req, res) => {
+    try {
+        const { data } = req.body;
+        const shipping = await ShippingModel.findOne();
+        if (!shipping) {
+            const newShipping = new ShippingModel({ data });
+            await newShipping.save();
+            return res.status(201).json({
+                message: "shipping added successfully!",
+            });
+        }
+        shipping.data = data;
+        await shipping.save();
+        return res.status(200).json({
+            message: "shipping updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
+
+export const paymentRefund = async (req, res) => {
+    try {
+        const { data } = req.body;
+        const isPaymentRef = await PaymentRefundModel.findOne();
+        if (!isPaymentRef) {
+            const newPolicy = new PaymentRefundModel({ data });
+            await newPolicy.save();
+            return res.status(201).json({
+                message: "Payment Ref added successfully!",
+            });
+        }
+        isPaymentRef.data = data;
+        await isPaymentRef.save();
+        return res.status(200).json({
+            message: "Payment Ref updated successfully!",
+        });
+
+    } catch (error) {
+        console.error("Update  Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
