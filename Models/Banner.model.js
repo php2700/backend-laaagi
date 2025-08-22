@@ -5,13 +5,17 @@ const bannerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  link: {
+    type: String,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 }, {
-    timestamps: true
+  timestamps: true
 });
 
 const Banner_Model = mongoose.model("Banner", bannerSchema);
-export {Banner_Model}
+export { Banner_Model }

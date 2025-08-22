@@ -41,7 +41,7 @@ export const AddGuest = async (req, res) => {
     try {
         const { userId, name, address, category, email, mobile, guestNo, pincode } = req?.body;
 
-        if (!userId || !name || !category || !email || !mobile) {
+        if (!userId || !name || !mobile) {
             return res.status(400).json({ message: "field are require" })
         }
 

@@ -96,8 +96,10 @@ export const uploadImage = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
+        const { link } = req?.body;
         const newBanner = new Banner_Model({
             banner: "banner/" + req.file?.filename,
+            link
         });
         await newBanner.save();
         return res.json({ filename: "banner/" + req.file?.filename });
@@ -203,7 +205,7 @@ export const updateBanner = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id } = req.body;
+        const { _id, link } = req.body;
 
         const existBanner = await Banner_Model.findById(_id);
         if (!existBanner) {
@@ -217,6 +219,7 @@ export const updateBanner = async (req, res) => {
             }
             updated.banner = "banner/" + req.file?.filename
         }
+        updated.link = link;
         await Banner_Model.findByIdAndUpdate(_id,
             updated
         )
@@ -2661,10 +2664,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name, category, description, price,userId } = req?.body;
+        const { name, category, description, price, userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name, description, category, price,userId
+            name, description, category, price, userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
