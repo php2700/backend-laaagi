@@ -42,6 +42,7 @@ import { PrivacyPolicyModel } from "../Models/privacy-policy.model.js";
 import { TermAndConditionModel } from "../Models/term_condition.js";
 import { ShippingModel } from "../Models/shipping.js";
 import { PaymentRefundModel } from "../Models/payment_refund.js";
+import { Guest_Model } from "../Models/guest.model.js";
 
 
 
@@ -3473,5 +3474,33 @@ export const paymentRefund = async (req, res) => {
     } catch (error) {
         console.error("Update  Error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
+export const getAllGuests = async (req, res) => {
+    try {
+        
+        const allGuests = await Guest_Model.find({}).populate('userId', 'name email');
+
+        if (!allGuests || allGuests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No guests found.'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            count: allGuests.length, 
+            guests: allGuests
+        });
+
+    } catch (error) {
+        console.error("Error by admin:", error);
+        res.status(500).json({
+            success: false,
+            message: 'server problem'
+        });
     }
 };
