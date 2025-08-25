@@ -43,6 +43,7 @@ import { TermAndConditionModel } from "../Models/term_condition.js";
 import { ShippingModel } from "../Models/shipping.js";
 import { PaymentRefundModel } from "../Models/payment_refund.js";
 import { Guest_Model } from "../Models/guest.model.js";
+import { Payment_History_Model } from "../Models/payment_history.js";
 
 
 
@@ -3501,6 +3502,93 @@ export const getAllGuests = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'server problem'
+        });
+    }
+};
+
+
+export const getAllPaymentHistory = async (req, res) => {
+    try {
+        const paymentHistories = await Payment_History_Model.find({});
+
+        if (!paymentHistories || paymentHistories.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "not found any payment history"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "sucsessfully recieved all payment history",
+            count: paymentHistories.length, 
+            data: paymentHistories
+        });
+
+    } catch (error) {
+        console.error("error during received my history:", error);
+        res.status(500).json({
+            success: false,
+            message: "server error ",
+            error: error.message
+        });
+    }
+};
+
+export const getPaymentHistoryByUser = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const userPaymentHistory = await Payment_History_Model.find({ userId: userId })
+                                                            .populate('userId', 'name email'); // यूज़र का नाम और ईमेल भी साथ में लाएं
+
+        if (!userPaymentHistory || userPaymentHistory.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "not found history for particular user"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "received payment hsitory userid",
+            data: userPaymentHistory
+        });
+
+    } catch (error) {
+        console.error("error during payment history:", error);
+        res.status(500).json({
+            success: false,
+            message: "server error"
+        });
+    }
+};
+export const getGuestsByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const guests = await Guest_Model.find({ userId: userId })
+                                        .populate('userId', 'name'); 
+
+        if (!guests || guests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "not user found fotr particular Userid"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "succseccfully received guest of user",
+            count: guests.length,
+            data: guests
+        });
+
+    } catch (error) {
+        console.error("error during bring guest of user:", error);
+        res.status(500).json({
+            success: false,
+            message: "server error"
         });
     }
 };
