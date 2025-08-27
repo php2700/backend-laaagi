@@ -2666,10 +2666,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name, category, description, price, userId } = req?.body;
+        const { name,mobile, category, description, price, userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name, description, category, price, userId
+            name,mobile, description, category, price, userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
@@ -3509,31 +3509,49 @@ export const getAllGuests = async (req, res) => {
 
 export const getAllPaymentHistory = async (req, res) => {
     try {
-        const paymentHistories = await Payment_History_Model.find({});
+      
+        const page = parseInt(req.query.page) || 1;
+        const perPage = parseInt(req.query.per_page) || 10;
+        
+        
+        const query = {};
 
-        if (!paymentHistories || paymentHistories.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "not found any payment history"
-            });
-        }
+        
+        const totalRecords = await Payment_History_Model.countDocuments(query);
 
+        
+        const totalPages = Math.ceil(totalRecords / perPage);
+
+        // 4. सिर्फ उस पेज का डेटा लाएं जिसकी ज़रूरत है
+        const paymentHistories = await Payment_History_Model.find(query)
+            .populate('userId', 'name email') 
+            .sort({ createdAt: -1 })         
+            .skip((page - 1) * perPage)      
+            .limit(perPage)                  
+            .exec();
+
+        
         res.status(200).json({
             success: true,
-            message: "sucsessfully recieved all payment history",
-            count: paymentHistories.length, 
-            data: paymentHistories
+            message: "Successfully received all payment history",
+            data: paymentHistories,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalRecords: totalRecords
+            }
         });
 
     } catch (error) {
-        console.error("error during received my history:", error);
+        console.error("Error during receiving payment history:", error);
         res.status(500).json({
             success: false,
-            message: "server error ",
+            message: "Server error",
             error: error.message
         });
     }
 };
+
 
 export const getPaymentHistoryByUser = async (req, res) => {
     try {

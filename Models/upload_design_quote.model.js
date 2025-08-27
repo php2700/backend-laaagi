@@ -25,6 +25,10 @@ const uploadDesignQuoteSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         required:true,
         ref:'user'
+    },
+    mobile:{
+        type:String,
+        required:false
     }
 }, {
     timestamps: true
