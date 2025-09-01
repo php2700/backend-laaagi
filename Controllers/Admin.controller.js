@@ -3625,31 +3625,43 @@ export const getPaymentHistoryByUser = async (req, res) => {
 
 
 export const getGuestsByUser = async (req, res) => {
-    try {
-        const { userId } = req.params;
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-        const guests = await Guest_Model.find({ userId: userId })
-                                        .populate('userId', 'name'); 
+    // Total count for pagination
+    const total = await Guest_Model.countDocuments({ userId });
 
-        if (!guests || guests.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "not user found fotr particular Userid"
-            });
-        }
+    // Paginated data
+    const guests = await Guest_Model.find({ userId })
+      .populate('userId', 'name')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Optional: newest first
 
-        res.status(200).json({
-            success: true,
-            message: "succseccfully received guest of user",
-            count: guests.length,
-            data: guests
-        });
-
-    } catch (error) {
-        console.error("error during bring guest of user:", error);
-        res.status(500).json({
-            success: false,
-            message: "server error"
-        });
+    if (!guests || guests.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No guests found for this userId",
+      });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully retrieved guests",
+      total,
+      page,
+      limit,
+      data: guests,
+    });
+
+  } catch (error) {
+    console.error("Error fetching guests:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };
