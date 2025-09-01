@@ -42,6 +42,8 @@ import { PrivacyPolicyModel } from "../Models/privacy-policy.model.js";
 import { TermAndConditionModel } from "../Models/term_condition.js";
 import { ShippingModel } from "../Models/shipping.js";
 import { PaymentRefundModel } from "../Models/payment_refund.js";
+import { Guest_Model } from "../Models/guest.model.js";
+import { Payment_History_Model } from "../Models/payment_history.js";
 
 
 
@@ -96,8 +98,10 @@ export const uploadImage = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
+        const { link } = req?.body;
         const newBanner = new Banner_Model({
             banner: "banner/" + req.file?.filename,
+            link
         });
         await newBanner.save();
         return res.json({ filename: "banner/" + req.file?.filename });
@@ -203,7 +207,7 @@ export const updateBanner = async (req, res) => {
         if (err) {
             return res.status(400).json({ error: "Error uploading image" });
         }
-        const { _id } = req.body;
+        const { _id, link } = req.body;
 
         const existBanner = await Banner_Model.findById(_id);
         if (!existBanner) {
@@ -217,6 +221,7 @@ export const updateBanner = async (req, res) => {
             }
             updated.banner = "banner/" + req.file?.filename
         }
+        updated.link = link;
         await Banner_Model.findByIdAndUpdate(_id,
             updated
         )
@@ -2661,10 +2666,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name, category, description, price,userId } = req?.body;
+        const { name,mobile, category, description, price, userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name, description, category, price,userId
+            name,mobile, description, category, price, userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
@@ -2682,6 +2687,7 @@ export const getInvitationQuote = async (req, res) => {
                 $or: [
                     { name: { $regex: search, $options: "i" } },
                     { category: { $regex: search, $options: "i" } },
+                    { mobile: { $regex: search, $options: "i" } },
                 ],
             };
         };
@@ -3470,5 +3476,180 @@ export const paymentRefund = async (req, res) => {
     } catch (error) {
         console.error("Update  Error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
+export const getAllGuests = async (req, res) => {
+    try {
+        
+        const allGuests = await Guest_Model.find({}).populate('userId', 'name email');
+
+        if (!allGuests || allGuests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No guests found.'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            count: allGuests.length, 
+            guests: allGuests
+        });
+
+    } catch (error) {
+        console.error("Error by admin:", error);
+        res.status(500).json({
+            success: false,
+            message: 'server problem'
+        });
+    }
+};
+
+
+export const getAllPaymentHistory= async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const perPage = parseInt(req.query.per_page) || 10;
+        const modelType = req.query.modelType; 
+
+        let Model;
+        let successMessage;
+        let populatePath = 'userId'; 
+        let populateFields = 'name email'; 
+
+        if (modelType === 'payment') {
+            Model = Payment_History_Model;
+            successMessage = "Successfully received all payment history";
+            
+        } else if (modelType === 'sweet') {
+            Model = Sweet_History_Model;
+            successMessage = "Successfully received all sweet item history";
+            // Sweet_History_Model में भी userId है
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid model type provided. Please use 'payment' or 'sweet'."
+            });
+        }
+
+        const query = {}; 
+
+        
+        const totalRecords = await Model.countDocuments(query);
+
+        
+        const totalPages = Math.ceil(totalRecords / perPage);
+
+        
+        const histories = await Model.find(query)
+            .populate(populatePath, populateFields) 
+            .sort({ createdAt: -1 })               
+            .skip((page - 1) * perPage)            
+            .limit(perPage)                        
+            .exec();
+
+        
+        res.status(200).json({
+            success: true,
+            message: successMessage,
+            data: histories,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalRecords: totalRecords
+            }
+        });
+
+    } catch (error) {
+        console.error(`Error during receiving ${req.query.modelType} history:`, error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
+
+export const getPaymentHistoryByUser = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // Get both histories
+        const [paymentData, sweetData] = await Promise.all([
+            Payment_History_Model.find({ userId })
+                .populate("userId", "name email")
+                .sort({ createdAt: -1 })
+                .lean(),
+            Sweet_History_Model.find({ userId })
+                .populate("userId", "name email")
+                .sort({ createdAt: -1 })
+                .lean()
+        ]);
+
+        // Add type to each for identification
+        const allData = [
+            ...paymentData.map((entry) => ({ ...entry, type: "invitation" })),
+            ...sweetData.map((entry) => ({ ...entry, type: "sweet" })),
+        ];
+
+        // Sort combined data by date
+        const sorted = allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Paginate after combining
+        const paginatedData = sorted.slice(skip, skip + limit);
+
+        res.status(200).json({
+            success: true,
+            message: "Received full payment history (invitation + sweet)",
+            data: paginatedData,
+            total: sorted.length,
+            page,
+            limit
+        });
+
+    } catch (error) {
+        console.error("Error fetching combined user payment history:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
+
+export const getGuestsByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const guests = await Guest_Model.find({ userId: userId })
+                                        .populate('userId', 'name'); 
+
+        if (!guests || guests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "not user found fotr particular Userid"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "succseccfully received guest of user",
+            count: guests.length,
+            data: guests
+        });
+
+    } catch (error) {
+        console.error("error during bring guest of user:", error);
+        res.status(500).json({
+            success: false,
+            message: "server error"
+        });
     }
 };

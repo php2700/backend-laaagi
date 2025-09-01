@@ -11,11 +11,11 @@ const guestSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: true
+        required: false
     },
     email: {
         type: String,
-        required: true
+        required: false
     },
     mobile: {
         type: String,
@@ -26,7 +26,7 @@ const guestSchema = new mongoose.Schema({
         required: true
     }, guestNo: {
         type: Number,
-        required: true
+        required: false
     },
     pincode:{
         type:String ,
