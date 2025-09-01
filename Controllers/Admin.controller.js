@@ -2687,6 +2687,7 @@ export const getInvitationQuote = async (req, res) => {
                 $or: [
                     { name: { $regex: search, $options: "i" } },
                     { category: { $regex: search, $options: "i" } },
+                    { mobile: { $regex: search, $options: "i" } },
                 ],
             };
         };
@@ -3507,34 +3508,53 @@ export const getAllGuests = async (req, res) => {
 };
 
 
-export const getAllPaymentHistory = async (req, res) => {
+export const getAllPaymentHistory= async (req, res) => {
     try {
-      
         const page = parseInt(req.query.page) || 1;
         const perPage = parseInt(req.query.per_page) || 10;
-        
-        
-        const query = {};
+        const modelType = req.query.modelType; 
+
+        let Model;
+        let successMessage;
+        let populatePath = 'userId'; 
+        let populateFields = 'name email'; 
+
+        if (modelType === 'payment') {
+            Model = Payment_History_Model;
+            successMessage = "Successfully received all payment history";
+            
+        } else if (modelType === 'sweet') {
+            Model = Sweet_History_Model;
+            successMessage = "Successfully received all sweet item history";
+            // Sweet_History_Model में भी userId है
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid model type provided. Please use 'payment' or 'sweet'."
+            });
+        }
+
+        const query = {}; 
 
         
-        const totalRecords = await Payment_History_Model.countDocuments(query);
+        const totalRecords = await Model.countDocuments(query);
 
         
         const totalPages = Math.ceil(totalRecords / perPage);
 
-        // 4. सिर्फ उस पेज का डेटा लाएं जिसकी ज़रूरत है
-        const paymentHistories = await Payment_History_Model.find(query)
-            .populate('userId', 'name email') 
-            .sort({ createdAt: -1 })         
-            .skip((page - 1) * perPage)      
-            .limit(perPage)                  
+        
+        const histories = await Model.find(query)
+            .populate(populatePath, populateFields) 
+            .sort({ createdAt: -1 })               
+            .skip((page - 1) * perPage)            
+            .limit(perPage)                        
             .exec();
 
         
         res.status(200).json({
             success: true,
-            message: "Successfully received all payment history",
-            data: paymentHistories,
+            message: successMessage,
+            data: histories,
             pagination: {
                 currentPage: page,
                 totalPages: totalPages,
@@ -3543,7 +3563,7 @@ export const getAllPaymentHistory = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error during receiving payment history:", error);
+        console.error(`Error during receiving ${req.query.modelType} history:`, error);
         res.status(500).json({
             success: false,
             message: "Server error",
@@ -3557,30 +3577,53 @@ export const getPaymentHistoryByUser = async (req, res) => {
     try {
         const userId = req.params.userId;
 
-        const userPaymentHistory = await Payment_History_Model.find({ userId: userId })
-                                                            .populate('userId', 'name email'); // यूज़र का नाम और ईमेल भी साथ में लाएं
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-        if (!userPaymentHistory || userPaymentHistory.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "not found history for particular user"
-            });
-        }
+        // Get both histories
+        const [paymentData, sweetData] = await Promise.all([
+            Payment_History_Model.find({ userId })
+                .populate("userId", "name email")
+                .sort({ createdAt: -1 })
+                .lean(),
+            Sweet_History_Model.find({ userId })
+                .populate("userId", "name email")
+                .sort({ createdAt: -1 })
+                .lean()
+        ]);
+
+        // Add type to each for identification
+        const allData = [
+            ...paymentData.map((entry) => ({ ...entry, type: "invitation" })),
+            ...sweetData.map((entry) => ({ ...entry, type: "sweet" })),
+        ];
+
+        // Sort combined data by date
+        const sorted = allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Paginate after combining
+        const paginatedData = sorted.slice(skip, skip + limit);
 
         res.status(200).json({
             success: true,
-            message: "received payment hsitory userid",
-            data: userPaymentHistory
+            message: "Received full payment history (invitation + sweet)",
+            data: paginatedData,
+            total: sorted.length,
+            page,
+            limit
         });
 
     } catch (error) {
-        console.error("error during payment history:", error);
+        console.error("Error fetching combined user payment history:", error);
         res.status(500).json({
             success: false,
-            message: "server error"
+            message: "Server error"
         });
     }
 };
+
+
 export const getGuestsByUser = async (req, res) => {
     try {
         const { userId } = req.params;
