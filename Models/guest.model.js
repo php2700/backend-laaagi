@@ -13,10 +13,12 @@ const guestSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    email: {
+  email: {
         type: String,
-        required: false
-    },
+        required: false,
+        unique: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
+    }, 
     mobile: {
         type: String,
         required: true
