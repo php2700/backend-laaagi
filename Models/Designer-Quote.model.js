@@ -28,6 +28,8 @@ const designerQuoteSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+}, {
+    timestamps: true
 })
 
 const Designer_Quote_model = mongoose.model("designer-quote", designerQuoteSchema)
