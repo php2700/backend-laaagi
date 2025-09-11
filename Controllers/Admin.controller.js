@@ -2666,10 +2666,10 @@ export const uploadDesignQuote = async (req, res) => {
             return res.status(400).json({ error: "Error uploading image" });
         }
 
-        const { name,mobile, category, description, price, userId } = req?.body;
+        const { name, mobile, category, description, price, userId } = req?.body;
         const uploadDesignQuote = new upload_design_quote_model({
             image: "invitationQuote/" + req.file?.filename,
-            name,mobile, description, category, price, userId
+            name, mobile, description, category, price, userId
         });
         await uploadDesignQuote.save();
         return res.json({ filename: "invitationQuote/" + req.file?.filename });
@@ -3122,28 +3122,54 @@ export const userplanningList = async (req, res) => {
     }
 }
 
-
-
 export const userAddPlanningHistory = async (req, res) => {
     try {
-        const { userId, planningId, checked } = req?.body;
-        if (!userId || !planningId || !checked) {
-            return res.status(400).json({ message: "field are require" })
+        const { userId, planning } = req?.body;
+        if (!userId || !Array.isArray(planning)) {
+            return res.status(400).json({ message: "userId and planning (array) are required" });
         }
-        let isExistHistory = await Planning_History_Model.findOne({ userId: userId, planningId: planningId })
-        if (!isExistHistory) {
-            isExistHistory = new Planning_History_Model({ userId, planningId, checked });
-            await isExistHistory.save();
-        } else {
-            isExistHistory.checked = checked;
-            await isExistHistory.save()
-        }
-        return res.status(200).json({ planningDataHistory: isExistHistory })
+        console.log(planning, 'planning')
+        for (const ele of planning) {
+            const { planningId, checked } = ele;
 
+            let isExistHistory = await Planning_History_Model.findOne({ userId, planningId });
+            if (!isExistHistory) {
+                isExistHistory = new Planning_History_Model({ userId, planningId, checked });
+                await isExistHistory.save();
+            } else {
+                isExistHistory.checked = checked;
+                await isExistHistory.save();
+            }
+        }
+
+        return res.status(200).json({ success: true, message: 'Planning history updated successfully' });
     } catch (error) {
-        return res.status(400).json({ message: error?.message })
+        console.error('Error in userAddPlanningHistory:', error);
+        return res.status(400).json({ message: error?.message || 'Failed to update planning history' });
     }
-}
+};
+
+export const userClearPlanningHistory = async (req, res) => {
+    try {
+        const { userId, planning } = req?.body;
+        if (!userId || !Array.isArray(planning)) {
+            return res.status(400).json({ message: "userId and planning (array) are required" });
+        }
+        for (const ele of planning) {
+            const { planningId } = ele;
+            let isExistHistory = await Planning_History_Model.findOne({ userId, planningId });
+            if (isExistHistory) {
+                isExistHistory.checked = [];
+                await isExistHistory.save();
+            }
+        }
+
+        return res.status(200).json({ success: true, message: 'Planning clear history updated successfully' });
+    } catch (error) {
+        console.error('Error in userAddPlanningHistory:', error);
+        return res.status(400).json({ message: error?.message || 'Failed to update planning history' });
+    }
+};
 
 
 export const userHelpRequest = async (req, res) => {
@@ -3482,7 +3508,7 @@ export const paymentRefund = async (req, res) => {
 
 export const getAllGuests = async (req, res) => {
     try {
-        
+
         const allGuests = await Guest_Model.find({}).populate('userId', 'name email');
 
         if (!allGuests || allGuests.length === 0) {
@@ -3494,7 +3520,7 @@ export const getAllGuests = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            count: allGuests.length, 
+            count: allGuests.length,
             guests: allGuests
         });
 
@@ -3508,21 +3534,21 @@ export const getAllGuests = async (req, res) => {
 };
 
 
-export const getAllPaymentHistory= async (req, res) => {
+export const getAllPaymentHistory = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const perPage = parseInt(req.query.per_page) || 10;
-        const modelType = req.query.modelType; 
+        const modelType = req.query.modelType;
 
         let Model;
         let successMessage;
-        let populatePath = 'userId'; 
-        let populateFields = 'name email'; 
+        let populatePath = 'userId';
+        let populateFields = 'name email';
 
         if (modelType === 'payment') {
             Model = Payment_History_Model;
             successMessage = "Successfully received all payment history";
-            
+
         } else if (modelType === 'sweet') {
             Model = Sweet_History_Model;
             successMessage = "Successfully received all sweet item history";
@@ -3534,23 +3560,23 @@ export const getAllPaymentHistory= async (req, res) => {
             });
         }
 
-        const query = {}; 
+        const query = {};
 
-        
+
         const totalRecords = await Model.countDocuments(query);
 
-        
+
         const totalPages = Math.ceil(totalRecords / perPage);
 
-        
+
         const histories = await Model.find(query)
-            .populate(populatePath, populateFields) 
-            .sort({ createdAt: -1 })               
-            .skip((page - 1) * perPage)            
-            .limit(perPage)                        
+            .populate(populatePath, populateFields)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * perPage)
+            .limit(perPage)
             .exec();
 
-        
+
         res.status(200).json({
             success: true,
             message: successMessage,
@@ -3625,43 +3651,43 @@ export const getPaymentHistoryByUser = async (req, res) => {
 
 
 export const getGuestsByUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    try {
+        const { userId } = req.params;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-    // Total count for pagination
-    const total = await Guest_Model.countDocuments({ userId });
+        // Total count for pagination
+        const total = await Guest_Model.countDocuments({ userId });
 
-    // Paginated data
-    const guests = await Guest_Model.find({ userId })
-      .populate('userId', 'name')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }); // Optional: newest first
+        // Paginated data
+        const guests = await Guest_Model.find({ userId })
+            .populate('userId', 'name')
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 }); // Optional: newest first
 
-    if (!guests || guests.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No guests found for this userId",
-      });
+        if (!guests || guests.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No guests found for this userId",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Successfully retrieved guests",
+            total,
+            page,
+            limit,
+            data: guests,
+        });
+
+    } catch (error) {
+        console.error("Error fetching guests:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Successfully retrieved guests",
-      total,
-      page,
-      limit,
-      data: guests,
-    });
-
-  } catch (error) {
-    console.error("Error fetching guests:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
-  }
 };

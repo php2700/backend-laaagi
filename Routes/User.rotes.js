@@ -1,7 +1,7 @@
 // 
 import express from "express";
 import { addCart, addContactDetails, AddGuest, addRecentView, calculatePrice, createCustomizationRequest, deleteCart, deleteGuest, editGuest, getCart, getCartDetailsById, getPaymentHistory, getPaymentRef, getPaymentView, getPrivacyPolicy, getRecentView, getShipping, getSweetHistory, getTermCondition, guestData, guestList, updateAddressPerson } from "../Controllers/UserController.js";
-import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, firstInvitationCategoryWise, firstSweetCategoryWise, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
+import { addContactUsDetail, AddDesignerQuote, addInvitation, AddQuote, bannerList, bestSellerData, createUser, dryFruitById, firstInvitationCategoryWise, firstSweetCategoryWise, loginByGoogle, sweetById, updateAddress, uploadDesignQuote, userAboutList, userAddPlanningHistory, userAdsList, userBestSellerList, userClearPlanningHistory, userDataById, userDecorationList, userDesigner, userDiscoverSweetsList, userDryFruits, userEventList, userHelpRequest, userInvitationBoxList, userInvitationById, userInvitationList, userplanningList, userReviewList, userSweetsList, userWeddingList, verifyOtp } from "../Controllers/Admin.controller.js";
 import { Authentication } from "../Middlewares/Authentication.middleware.js";
 import { Authorization } from "../Middlewares/Authorization.middleware.js";
 import { Protect } from "../Middlewares/authMiddleware.js";
@@ -91,6 +91,8 @@ UserRouter.get('/data/:id', Authentication, Authorization(['user']), userDataByI
 UserRouter.get("/event-list/:userId", Authentication, Authorization(['user']), userEventList);
 UserRouter.get("/planning_list/", Authentication, Authorization(['user']), userplanningList);
 UserRouter.post("/add-planning-history", Authentication, Authorization(['user']), userAddPlanningHistory);
+UserRouter.post("/clear-planning-history", Authentication, Authorization(['user']), userClearPlanningHistory);
+
 
 /*---------------------------planning help -------------------*/
 UserRouter.post("/add-planning-help", Authentication, Authorization(['user']), userHelpRequest);
